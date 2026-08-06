@@ -15,15 +15,16 @@
 ---
 
 ## Phase 2 — Backend: Upload + Single-Agent Q&A
-- [ ] `backend/app/main.py` — FastAPI app, CORS, lifespan hooks, health check
-- [ ] `backend/app/config.py` — Pydantic settings from env vars
-- [ ] `backend/app/models/schemas.py` — Pydantic request/response models
-- [ ] `backend/app/security/csv_sanitizer.py` — formula injection escape, prompt injection quarantine
-- [ ] `backend/app/services/duckdb_service.py` — per-session in-memory DuckDB, read-only connections, TTL cleanup
-- [ ] `backend/app/routers/upload.py` — CSV validation (MIME, size, schema), profiling (nulls, dtypes, duplicates, outliers), DuckDB load
-- [ ] `backend/app/services/qdrant_service.py` — embed schema + column stats into Qdrant per-session namespace
-- [ ] `backend/app/routers/chat.py` (v1) — single Claude call: retrieve schema → generate SQL → execute → narrate → SSE stream
+- [x] `backend/app/main.py` — FastAPI app, CORS, lifespan hooks, health check
+- [x] `backend/app/config.py` — Pydantic settings from env vars
+- [x] `backend/app/models/schemas.py` — Pydantic request/response models
+- [x] `backend/app/security/csv_sanitizer.py` — formula injection escape, prompt injection quarantine
+- [x] `backend/app/services/duckdb_service.py` — per-session in-memory DuckDB, read-only connections, TTL cleanup
+- [x] `backend/app/routers/upload.py` — CSV validation (MIME, size, schema), profiling (nulls, dtypes, duplicates, outliers), DuckDB load
+- [x] `backend/app/services/qdrant_service.py` — embed schema + column stats into Qdrant per-session namespace
+- [x] `backend/app/routers/chat.py` (v1) — single Claude call: retrieve schema → generate SQL → execute → narrate → SSE stream
 - [ ] **Milestone test**: upload CSV → ask "Which region has highest revenue?" → get streamed answer
+- [ ] 📌 **Git commit**: `feat: CSV upload + single-agent Q&A with DuckDB and SSE streaming`
 
 ---
 
