@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     """Central config. Every value can be overridden by an env var of the same name."""
 
     # ─── LLM ────────────────────────────────────────────────────
-    anthropic_api_key: str = Field(..., description="Anthropic API key")
-    llm_model: str = Field("claude-sonnet-4-20250514", description="Claude model ID")
+    gemini_api_key: str = Field(..., description="Google Gemini API key")
+    llm_model: str = Field("gemini-2.5-flash", description="Gemini model ID")
     llm_max_tokens: int = Field(4096, description="Max tokens per LLM response")
 
     # ─── Postgres ────────────────────────────────────────────────

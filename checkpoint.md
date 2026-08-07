@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-07  
 **Repository**: `d:\Code\internship\assignment`  
-**Current Phase**: Phase 2 (Backend: Upload + Single-Agent Q&A) — Core Implementation Complete
+**Current Phase**: Phase A & B Complete, Phase C (Frontend) Core Implementation Complete (Pending Build Polish)
 
 ---
 
@@ -10,27 +10,50 @@
 
 ### Completed Phases
 
-#### ✅ Phase 1: Project Scaffolding
-- Monorepo directory structure established (`backend/`, `frontend/`, `data/`, `eval/`).
-- Python virtual environment created in `backend/venv` with all pinned dependencies installed (FastAPI, LangGraph, DuckDB, Anthropic, Qdrant Client, Redis, SQLAlchemy, scikit-learn, statsmodels, WeasyPrint, structlog, etc.).
-- Frontend scaffolded with Vite + React + GSAP + Plotly.js + React Router DOM.
-- CSS Design System (`frontend/src/index.css`) created following the **Light YC-backed startup aesthetic** (Inter font, off-white `#FAFAFA` background, `#6366F1` indigo accent).
-- Docker Compose setup (`docker-compose.yml`) for 5 services: FastAPI backend, Vite frontend, Postgres 16, Redis 7, and Qdrant.
-- Synthetic test dataset (`data/sample_sales.csv`) generated (1,000 rows with realistic schema, revenue anomalies, and nulls).
-- Git commit created: `0e65c15` (`feat: project scaffolding — monorepo, deps, Docker, sample data`).
+#### ✅ Phase A: Migration to Google Gemini
+- Removed `anthropic` and `langchain-anthropic` dependencies.
+- Added `google-genai>=1.0.0` and `langchain-google-genai>=2.0.0` in `backend/requirements.txt`.
+- Updated `backend/app/config.py`: switched `anthropic_api_key` → `gemini_api_key`, default model set to `gemini-2.5-flash`.
+- Updated `backend/.env` with `GEMINI_API_KEY`.
+- Verified backend dependencies installation and server health check (`/health` returning status `ok`).
 
-#### ✅ Phase 2: Backend Core Implementation
-Created and tested all Phase 2 backend modules:
-1. `backend/app/config.py`: Pydantic Settings reading environment variables.
-2. `backend/app/models/schemas.py`: Request/Response models (`UploadResponse`, `DataQualitySummary`, `ColumnProfile`, `ChatRequest`, `AgentStep`, `ChartSpec`, `CodeBlock`, `AnomalyFlag`, `ChatResponse`, `SSEEvent`).
-3. `backend/app/security/csv_sanitizer.py`: CSV security layer enforcing formula injection escaping (`=`, `+`, `-`, `@`) and prompt injection quarantine.
-4. `backend/app/services/duckdb_service.py`: Per-session in-memory DuckDB manager with SELECT-only query execution, DataFrame table registration, and TTL session eviction.
-5. `backend/app/services/qdrant_service.py`: Schema retrieval service.
-6. `backend/app/routers/upload.py`: `POST /api/upload` endpoint handling multi-CSV file uploads, MIME/extension checks, size caps (25MB), sanitization, data profiling (nulls, dtypes, duplicates, numeric stats), DuckDB loading, and schema registration.
-7. `backend/app/routers/chat.py`: `POST /api/chat` SSE endpoint implementing single-agent Q&A pipeline (Schema Retrieval -> Claude SQL Generation -> DuckDB Execution -> Claude Narration -> SSE Streaming).
-8. `backend/app/main.py`: FastAPI main application with CORS middleware, lifespan cleanup task, and `/health` check endpoint.
-9. Backend environment configuration created (`backend/.env`).
-10. Verified server startup via Uvicorn and verified `/health` endpoint returning `{"status": "ok", "version": "0.1.0"}`.
+#### ✅ Phase B: Full LangGraph Multi-Agent Pipeline
+Created all multi-agent architecture modules under `backend/app/agents/`:
+1. `router_agent.py`: Uses Gemini to classify user intent (`question`, `chart`, `anomaly`, `forecast`, `code_gen`, `general`).
+2. `schema_retriever.py`: Retrieves session schema context and table metadata from Qdrant/DuckDB.
+3. `coder_agent.py`: Generates DuckDB SQL (and pandas equivalent) with self-heal error context injection.
+4. `validator.py`: Enforces SELECT-only queries via `sqlglot` and walks Python AST for safe pandas execution.
+5. `executor.py`: Executes SQL against per-session DuckDB instance with thread timeout guard; sandboxed pandas executor.
+6. `chart_agent.py`: Auto-selects chart types and generates Plotly JSON specifications via Gemini.
+7. `anomaly_agent.py`: Two-layer anomaly detective combining statistical detection (IQR, Z-score) with Gemini investigative notes.
+8. `forecast_agent.py`: Time-series forecasting using `statsmodels` (Exponential Smoothing) with 95% confidence intervals.
+9. `narrator_agent.py`: Synthesizes outputs from all active agents into a structured business narrative using Gemini.
+10. `memory.py`: In-memory session conversation tracking.
+11. `graph.py`: Complete pipeline orchestrator wiring all agent nodes with self-heal retry loops.
+12. `backend/app/routers/chat.py`: Updated to stream typed SSE events (`agent_step`, `code`, `chart`, `anomaly`, `forecast`, `token`, `error`, `done`).
+
+#### 🛠️ Phase C: Frontend Implementation (Light YC Design System + GSAP)
+Built complete frontend application structure in `frontend/src/`:
+1. **Utilities & Hooks**:
+   - `utils/constants.js`: API routes, event types, agent icons, severity colors.
+   - `utils/api.js`: Wrappers for file upload, chat SSE, and health check.
+   - `animations/gsap-registry.js`: Central GSAP plugin registration (`ScrollTrigger`, `TextPlugin`).
+   - `hooks/useGsap.js`: GSAP hook with auto-cleanup.
+   - `hooks/useSSE.js`: SSE stream consumer hook for real-time typed agent events.
+2. **Components**:
+   - `components/common/`: `Button.jsx`, `Badge.jsx`, `Toast.jsx`.
+   - `components/upload/`: `Dropzone.jsx` (with GSAP hover/drop animations), `FileCard.jsx`.
+   - `components/chat/`: `ChatPanel.jsx`, `MessageBubble.jsx` (with embedded agent step trace, code blocks, anomaly items).
+   - `components/dashboard/`: `StatCard.jsx` (with GSAP count-up counter), `AutoDashboard.jsx`.
+   - `components/charts/`: `ChartRenderer.jsx` (Plotly wrapper).
+   - `components/trace/`: `AgentTraceTimeline.jsx` (cascading agent step execution timeline).
+   - `components/layout/`: `Navbar.jsx`, `Sidebar.jsx`.
+3. **Pages & Styling**:
+   - `pages/Landing.jsx`: Animated hero section with stagger effects and feature highlights.
+   - `pages/Workspace.jsx`: Full workspace layout integrating sidebar, dropzone, auto-dashboard, plotly chart display, and SSE chat.
+   - `App.jsx`: View switcher between Landing and Workspace.
+   - `index.css`: Light YC startup design system (Inter font, indigo `#6366F1` primary accent, off-white `#FAFAFA` background, CSS custom properties, responsive styles).
+   - `vite.config.js`: Updated API proxies for `/api` and `/health`.
 
 ---
 
@@ -38,46 +61,47 @@ Created and tested all Phase 2 backend modules:
 
 ```
 d:\Code\internship\assignment\
-├── PRD_AI_Data_Analyst.md            # Product Requirements Document
-├── implementation_plan.md            # Comprehensive Implementation Plan
-├── task.md                           # Detailed Task Tracker (Phase 1 & Phase 2 backend checked)
-├── checkpoint.md                     # This file!
-├── docker-compose.yml                # Compose file for backend, frontend, postgres, redis, qdrant
-├── .env.example                      # Global environment variable template
-├── generate_sample_data.py           # Synthetic dataset generator script
-├── data/
-│   └── sample_sales.csv              # Generated 1,000-row test dataset
 ├── backend/
-│   ├── .env                          # Backend active environment file
-│   ├── requirements.txt              # Pinned Python dependencies
-│   ├── Dockerfile                    # Container definition
-│   ├── venv/                         # Python virtual environment (all packages installed)
+│   ├── .env                           # Configured with GEMINI_API_KEY
+│   ├── requirements.txt               # Updated for Gemini & LangGraph
 │   └── app/
-│       ├── __init__.py
-│       ├── main.py                   # FastAPI app & lifespan handlers
-│       ├── config.py                 # App settings (Pydantic BaseSettings)
-│       ├── models/
-│       │   ├── __init__.py
-│       │   └── schemas.py            # Pydantic schemas & SSE types
-│       ├── security/
-│       │   ├── __init__.py
-│       │   └── csv_sanitizer.py      # Formula & prompt injection sanitizer
-│       ├── services/
-│       │   ├── __init__.py
-│       │   ├── duckdb_service.py     # Per-session DuckDB manager
-│       │   └── qdrant_service.py     # Schema retriever
+│       ├── config.py                  # Pydantic settings for Gemini
+│       ├── main.py                    # FastAPI app & lifespan
+│       ├── agents/
+│       │   ├── router_agent.py        # Intent classification node
+│       │   ├── schema_retriever.py    # Schema context node
+│       │   ├── coder_agent.py         # SQL generation node
+│       │   ├── validator.py           # sqlglot + AST validation
+│       │   ├── executor.py            # Sandboxed DuckDB executor
+│       │   ├── chart_agent.py         # Plotly spec generator
+│       │   ├── anomaly_agent.py       # IQR/Z-score + Gemini detective
+│       │   ├── forecast_agent.py      # statsmodels forecasting
+│       │   ├── narrator_agent.py      # Final response synthesizer
+│       │   ├── memory.py              # Conversation context manager
+│       │   └── graph.py               # Pipeline orchestrator
 │       └── routers/
-│           ├── __init__.py
-│           ├── upload.py             # CSV upload & profiling API
-│           └── chat.py               # SSE streaming chat API
+│           ├── upload.py              # CSV profiling & DuckDB loader
+│           └── chat.py                # Multi-agent SSE streaming endpoint
 └── frontend/
-    ├── package.json                  # Vite, React 19, GSAP 3.15, Plotly, React Router
-    ├── vite.config.js                # Vite config with API proxy to localhost:8000
-    ├── index.html                    # Entry point with Google Fonts (Inter)
+    ├── package.json
+    ├── vite.config.js                 # Proxy for /api and /health
     └── src/
-        ├── index.css                 # Light YC design system & tokens
-        ├── main.jsx                  # React DOM mount point
-        └── App.jsx                   # React root component shell
+        ├── index.css                  # Light YC design system
+        ├── App.jsx                    # Main app container
+        ├── animations/
+        │   └── gsap-registry.js       # GSAP central setup
+        ├── utils/
+        │   ├── constants.js
+        │   └── api.js
+        ├── hooks/
+        │   ├── useGsap.js
+        │   └── useSSE.js
+        ├── components/                # Button, Badge, Toast, Dropzone, FileCard, ChatPanel,
+        │                              # MessageBubble, StatCard, AutoDashboard, ChartRenderer,
+        │                              # AgentTraceTimeline, Navbar, Sidebar
+        └── pages/
+            ├── Landing.jsx            # Hero & features page
+            └── Workspace.jsx          # Main analytics dashboard & chat page
 ```
 
 ---
@@ -87,16 +111,13 @@ d:\Code\internship\assignment\
 ### 1. Backend Server
 From `d:\Code\internship\assignment\backend`:
 ```powershell
-# Activate venv
 .\venv\Scripts\Activate.ps1
-
-# Run FastAPI dev server
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 - Health Check: `http://localhost:8000/health`
 - Swagger Docs: `http://localhost:8000/docs`
 
-> **Note**: Make sure `ANTHROPIC_API_KEY` in `backend\.env` has a valid API key for live chat responses.
+> **Note**: Ensure `GEMINI_API_KEY` in `backend\.env` contains your active Gemini API key.
 
 ### 2. Frontend Dev Server
 From `d:\Code\internship\assignment\frontend`:
@@ -107,20 +128,12 @@ npm run dev
 
 ---
 
-## 🎯 Next Steps
+## 🎯 Immediate Next Step on Resume
 
-1. **Complete Phase 2 Milestone Test**:
-   - Add valid `ANTHROPIC_API_KEY` to `backend\.env`.
-   - Upload `data/sample_sales.csv` via `POST /api/upload`.
-   - Send query to `POST /api/chat` and verify SSE streaming output.
-   - Commit Phase 2: `git commit -m "feat: CSV upload + single-agent Q&A with DuckDB and SSE streaming"`.
-
-2. **Phase 3 — Full LangGraph Multi-Agent Pipeline**:
-   - Implement `router_agent.py` (intent classification).
-   - Implement `coder_agent.py` (SQL + pandas generation).
-   - Implement `validator.py` (`sqlglot` SELECT-only check + AST allowlist).
-   - Implement `executor.py` (sandboxed execution).
-   - Implement `chart_agent.py`, `anomaly_agent.py` (detective notes), and `forecast_agent.py`.
-   - Wire nodes in `graph.py` using LangGraph `StateGraph`.
-
-3. **Phase 4 — Frontend UI with Light YC Styling & GSAP Animations**.
+1. Adjust any bundle/import resolution configuration in `frontend/vite.config.js` or `package.json` if needed for `plotly.js-dist-min` / `react-plotly.js` during Vite production build (`npx vite build`).
+2. Run end-to-end verification test:
+   - Start backend server on port 8000.
+   - Start frontend server (`npm run dev`) on port 5173.
+   - Open browser, navigate to Workspace, drag and drop `data/sample_sales.csv`.
+   - Ask queries for standard SQL narration, chart generation ("Plot revenue by region"), anomaly detection ("Find anomalies in revenue"), and forecasting ("Predict next sales").
+   - Verify real-time SSE agent trace steps appear in sidebar/chat bubble.
