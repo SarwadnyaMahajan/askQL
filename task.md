@@ -88,13 +88,13 @@
 ---
 
 ## Phase 5 — Auth, Caching, Streaming, Security
-- [ ] `backend/app/routers/auth.py` — register/login endpoints, JWT generation, password hashing (passlib)
-- [ ] `backend/app/models/db_models.py` — SQLAlchemy User model, Postgres connection
-- [ ] Auth middleware: extract JWT, attach user to request, protect routes
-- [ ] `frontend/src/pages/Login.jsx` — login/register form with GSAP entrance animations
-- [ ] `frontend/src/hooks/useAuth.js` — JWT token storage, auth state, protected route wrapper
-- [ ] `backend/app/services/redis_service.py` — query result cache + embedding cache with TTL
-- [ ] `backend/app/security/rate_limiter.py` — Redis token bucket (20 req/min)
+- [x] `backend/app/routers/auth.py` — register/login endpoints, JWT generation, password hashing (passlib)
+- [x] `backend/app/models/db_models.py` — SQLAlchemy User model, Postgres connection
+- [x] Auth middleware: extract JWT, attach user to request, protect routes
+- [x] `frontend/src/pages/Login.jsx` — login/register form with GSAP entrance animations
+- [x] `frontend/src/hooks/useAuth.js` — JWT token storage, auth state, protected route wrapper
+- [x] `backend/app/services/redis_service.py` — query result cache + embedding cache with TTL
+- [x] `backend/app/security/rate_limiter.py` — Redis token bucket (20 req/min)
 - [x] Security guardrails enforced:
   - [x] CSV MIME + extension check
   - [x] 25MB file size cap
@@ -109,17 +109,17 @@
 ---
 
 ## Phase 6 — Eval Framework, Trace Viewer, PDF Export
-- [ ] `eval/test_set.json` — 15–20 Q&A pairs with expected SQL + numeric answers
-- [ ] `eval/run_eval.py` — automated pipeline runner, scoring (exact match, tolerance, LLM-as-judge)
-- [ ] Eval output: JSON report (pass rate, avg latency, token cost)
-- [ ] `backend/app/routers/export.py` — PDF export of session (Q&A history, charts as images, anomaly notes)
+- [x] `eval/test_set.json` — 15–20 Q&A pairs with expected SQL + numeric answers
+- [x] `eval/run_eval.py` — automated pipeline runner, scoring (exact match, tolerance, LLM-as-judge)
+- [x] Eval output: JSON report (pass rate, avg latency, token cost)
+- [x] `backend/app/routers/export.py` — PDF export of session (Q&A history, charts as images, anomaly notes)
 
 ---
 
 ## Phase 7 — Deployment & Deliverables
 - [x] `docker-compose.yml` — services bootable (backend, frontend, postgres, redis, qdrant)
 - [x] `data/sample_sales.csv` — synthetic seed dataset (1,000 rows)
-- [ ] Deploy backend to Railway or Fly.io
-- [ ] Deploy frontend to Vercel
-- [ ] `.github/workflows/ci.yml` — lint, test, audit, build, deploy on push to `main`
-- [ ] `README.md` — setup instructions, mermaid architecture diagram, screenshots, live link
+- [x] Deploy backend to Railway or Fly.io
+- [x] Deploy frontend to Vercel
+- [x] `.github/workflows/ci.yml` — lint, test, audit, build, deploy on push to `main`
+- [x] `README.md` — setup instructions, mermaid architecture diagram, screenshots, live link

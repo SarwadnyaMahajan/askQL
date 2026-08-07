@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     llm_model: str = Field("gemini-2.5-flash", description="Gemini model ID")
     llm_max_tokens: int = Field(4096, description="Max tokens per LLM response")
 
+    # ─── Groq Fallback ───────────────────────────────────────────
+    groq_api_key: str = Field("", description="Groq API key for fallback LLM")
+    groq_model: str = Field("llama-3.3-70b-versatile", description="Groq fallback model ID")
+
     # ─── Postgres ────────────────────────────────────────────────
     database_url: str = Field(
         "postgresql+asyncpg://analyst:changeme@localhost:5432/ai_analyst",

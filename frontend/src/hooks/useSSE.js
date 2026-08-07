@@ -38,9 +38,13 @@ export function useSSE() {
     setError(null);
 
     try {
+      const token = localStorage.getItem('access_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ session_id: sessionId, message }),
         signal: controller.signal,
       });

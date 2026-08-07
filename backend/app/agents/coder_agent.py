@@ -9,6 +9,7 @@ from google import genai
 from google.genai import types
 
 from app.config import settings
+from app.services.llm_service import generate_llm
 
 CODER_SYSTEM_PROMPT = """You are an expert SQL coder for DuckDB. Given a user question and database schema, generate a SQL query to answer the question.
 
@@ -65,17 +66,14 @@ Please fix the SQL query to avoid this error. Pay close attention to table names
     prompt += '\n\nRespond with ONLY a JSON object containing "sql" and "explanation" keys.'
 
     try:
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        text = generate_llm(
+            client=client,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=CODER_SYSTEM_PROMPT,
-                max_output_tokens=1024,
-                temperature=0.1,
-            ),
+            system_instruction=CODER_SYSTEM_PROMPT,
+            max_output_tokens=1024,
+            temperature=0.1,
+            json_mode=True,
         )
-
-        text = response.text or ""
 
         # Parse JSON from response
         cleaned = text

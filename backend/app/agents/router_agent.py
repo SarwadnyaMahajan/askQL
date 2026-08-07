@@ -30,25 +30,25 @@ Respond with ONLY a JSON object: {"intent": "<category>", "confidence": <0.0-1.0
 """
 
 
+from app.services.llm_service import generate_llm
+
+
 def classify_intent(message: str, client: genai.Client) -> dict:
-    """Classify user message intent using Gemini.
+    """Classify user message intent using Gemini with Groq fallback.
 
     Returns dict with keys: intent, confidence, reasoning.
     """
     import json
 
     try:
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        text = generate_llm(
+            client=client,
             contents=f"User message: {message}",
-            config=types.GenerateContentConfig(
-                system_instruction=ROUTER_SYSTEM_PROMPT,
-                max_output_tokens=256,
-                temperature=0.0,
-            ),
+            system_instruction=ROUTER_SYSTEM_PROMPT,
+            max_output_tokens=256,
+            temperature=0.0,
+            json_mode=True,
         )
-
-        text = response.text or ""
 
         # Parse JSON from response
         cleaned = text.strip()

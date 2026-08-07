@@ -1,0 +1,33 @@
+[
+  {
+    "question": "What is the total revenue?",
+    "expected_sql": "SELECT SUM(revenue) FROM data",
+    "expected_answer": "100000",
+    "type": "exact_match"
+  },
+  {
+    "question": "How many rows are in the dataset?",
+    "expected_sql": "SELECT COUNT(*) FROM data",
+    "expected_answer": "1000",
+    "type": "exact_match"
+  },
+  {
+    "question": "What is the average quantity sold?",
+    "expected_sql": "SELECT AVG(quantity) FROM data",
+    "expected_answer": "50",
+    "type": "tolerance",
+    "tolerance_pct": 5
+  },
+  {
+    "question": "Which region had the highest revenue?",
+    "expected_sql": "SELECT region FROM data GROUP BY region ORDER BY SUM(revenue) DESC LIMIT 1",
+    "expected_answer": "North America",
+    "type": "llm_judge"
+  },
+  {
+    "question": "Show me a bar chart of revenue by region",
+    "expected_sql": "SELECT region, SUM(revenue) as revenue FROM data GROUP BY region",
+    "expected_answer": "chart generation",
+    "type": "llm_judge"
+  }
+]

@@ -38,6 +38,9 @@ Respond with ONLY a JSON object:
 """
 
 
+from app.services.llm_service import generate_llm
+
+
 def generate_chart_spec(
     query: str,
     rows: list[dict],
@@ -66,17 +69,14 @@ Sample data (first {min(len(rows), 50)} rows):
 Generate a Plotly.js chart specification to visualize this data. Return ONLY valid JSON."""
 
     try:
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        text = generate_llm(
+            client=client,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=CHART_SYSTEM_PROMPT,
-                max_output_tokens=2048,
-                temperature=0.2,
-            ),
+            system_instruction=CHART_SYSTEM_PROMPT,
+            max_output_tokens=2048,
+            temperature=0.2,
+            json_mode=True,
         )
-
-        text = response.text or ""
 
         # Parse JSON
         cleaned = text

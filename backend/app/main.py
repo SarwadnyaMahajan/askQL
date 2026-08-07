@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import upload, chat, auth
+from app.routers import upload, chat, auth, export
 from app.services.duckdb_service import duckdb_service
 from app.models.db_models import init_db
 
@@ -69,6 +69,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(upload.router)
 app.include_router(chat.router)
+app.include_router(export.router)
 
 
 @app.get("/health")

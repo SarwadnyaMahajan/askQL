@@ -12,6 +12,7 @@ from google import genai
 from google.genai import types
 
 from app.config import settings
+from app.services.llm_service import generate_llm
 
 
 NARRATOR_SYSTEM_PROMPT = """You are a senior data analyst presenting findings to a business user. Compose a clear, insightful answer that:
@@ -87,16 +88,15 @@ def narrate(
     prompt += "\n\nPlease provide a clear, insightful answer."
 
     try:
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        text = generate_llm(
+            client=client,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=NARRATOR_SYSTEM_PROMPT,
-                max_output_tokens=settings.llm_max_tokens,
-                temperature=0.3,
-            ),
+            system_instruction=NARRATOR_SYSTEM_PROMPT,
+            max_output_tokens=settings.llm_max_tokens,
+            temperature=0.3,
+            json_mode=False,
         )
-        return response.text or "I analyzed the data but couldn't generate a narrative."
+        return text or "I analyzed the data but couldn't generate a narrative."
 
     except Exception as e:
         return f"Analysis complete but narration failed: {str(e)}"

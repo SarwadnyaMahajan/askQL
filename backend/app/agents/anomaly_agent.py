@@ -16,6 +16,7 @@ from google import genai
 from google.genai import types
 
 from app.config import settings
+from app.services.llm_service import generate_llm
 
 
 # ─── Statistical Detection ───────────────────────────────────────
@@ -161,17 +162,14 @@ Flagged anomalies to investigate:
 Write detective notes for each flagged anomaly."""
 
     try:
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        text = generate_llm(
+            client=client,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=DETECTIVE_PROMPT,
-                max_output_tokens=2048,
-                temperature=0.3,
-            ),
+            system_instruction=DETECTIVE_PROMPT,
+            max_output_tokens=2048,
+            temperature=0.3,
+            json_mode=True,
         )
-
-        text = response.text or ""
         cleaned = text
         if "```json" in cleaned:
             cleaned = cleaned.split("```json")[1].split("```")[0]

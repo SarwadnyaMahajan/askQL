@@ -5,6 +5,7 @@ import Button from '../common/Button';
 
 export default function Dropzone({ onFilesSelected, disabled = false }) {
   const zoneRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDrag = useCallback((e) => {
@@ -72,6 +73,12 @@ export default function Dropzone({ onFilesSelected, disabled = false }) {
     e.target.value = '';
   }, [onFilesSelected]);
 
+  const openFileDialog = () => {
+    if (!disabled && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div
       ref={zoneRef}
@@ -80,13 +87,16 @@ export default function Dropzone({ onFilesSelected, disabled = false }) {
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={openFileDialog}
+      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
     >
       <div className="dropzone__icon">📄</div>
       <p className="dropzone__title">
         {isDragging ? 'Drop your CSV files here' : 'Drag & drop CSV files here'}
       </p>
-      <p className="dropzone__subtitle">or click to browse</p>
+      <p className="dropzone__subtitle">or click anywhere to browse</p>
       <input
+        ref={fileInputRef}
         type="file"
         accept=".csv"
         multiple
@@ -94,12 +104,21 @@ export default function Dropzone({ onFilesSelected, disabled = false }) {
         onChange={handleFileInput}
         disabled={disabled}
         id="file-upload-input"
+        style={{ display: 'none' }}
       />
-      <label htmlFor="file-upload-input">
-        <Button variant="secondary" size="sm" disabled={disabled} onClick={() => {}}>
+      <div style={{ marginTop: 'var(--space-md)', zIndex: 3, position: 'relative' }}>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            openFileDialog();
+          }}
+        >
           Browse Files
         </Button>
-      </label>
+      </div>
     </div>
   );
 }
