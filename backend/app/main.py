@@ -9,8 +9,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import upload, chat
+from app.routers import upload, chat, auth
 from app.services.duckdb_service import duckdb_service
+from app.models.db_models import init_db
 
 
 @asynccontextmanager
@@ -21,6 +22,9 @@ async def lifespan(app: FastAPI):
     print(f"   CORS origins: {settings.cors_origins}")
     print(f"   Max file size: {settings.max_file_size_mb}MB")
     print(f"   Session TTL: {settings.session_ttl_hours}h")
+
+    # Initialize DB tables
+    await init_db()
 
     # Start periodic cleanup task
     cleanup_task = asyncio.create_task(_periodic_cleanup())
@@ -62,6 +66,7 @@ app.add_middleware(
 
 # ─── Routes ──────────────────────────────────────────────────────
 
+app.include_router(auth.router)
 app.include_router(upload.router)
 app.include_router(chat.router)
 

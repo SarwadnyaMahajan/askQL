@@ -2,8 +2,10 @@
 import { useRef, useEffect } from 'react';
 import { gsap } from '../animations/gsap-registry';
 import Button from '../components/common/Button';
+import { useNavigate } from 'react-router-dom';
 
-export default function Landing({ onGetStarted }) {
+export default function Landing() {
+  const navigate = useNavigate();
   const heroRef = useRef(null);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -58,7 +60,7 @@ export default function Landing({ onGetStarted }) {
           Get instant insights, charts, and anomaly detection — powered by multi-agent AI.
         </p>
         <div ref={ctaRef} className="landing__cta">
-          <Button variant="primary" size="lg" onClick={onGetStarted}>
+          <Button variant="primary" size="lg" onClick={() => navigate('/workspace')}>
             Get Started — Upload CSV
           </Button>
         </div>

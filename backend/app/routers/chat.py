@@ -9,10 +9,12 @@ from __future__ import annotations
 import json
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sse_starlette.sse import EventSourceResponse
 
 from app.models.schemas import ChatRequest, AgentStep
+from app.security.auth import get_current_user
+from app.security.rate_limiter import rate_limit
 from app.services.duckdb_service import duckdb_service
 from app.agents.graph import run_pipeline
 
@@ -108,7 +110,7 @@ async def _stream_chat(request: ChatRequest):
     yield {"event": "done", "data": "{}"}
 
 
-@router.post("/chat")
+@router.post("/chat", dependencies=[Depends(get_current_user), Depends(rate_limit)])
 async def chat(request: ChatRequest):
     """Chat endpoint — streams response via SSE.
 

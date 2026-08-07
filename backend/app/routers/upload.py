@@ -7,11 +7,13 @@ import uuid
 from typing import Annotated
 
 import pandas as pd
-from fastapi import APIRouter, File, UploadFile, HTTPException, Query
+from fastapi import APIRouter, File, UploadFile, HTTPException, Query, Depends
 
 from app.config import settings
 from app.models.schemas import UploadResponse, DataQualitySummary, ColumnProfile
 from app.security.csv_sanitizer import sanitize_dataframe
+from app.security.auth import get_current_user
+from app.security.rate_limiter import rate_limit
 from app.services.duckdb_service import duckdb_service
 from app.services.qdrant_service import qdrant_service
 
@@ -90,7 +92,7 @@ def _profile_dataframe(df: pd.DataFrame, file_name: str) -> DataQualitySummary:
     )
 
 
-@router.post("/upload", response_model=UploadResponse)
+@router.post("/upload", response_model=UploadResponse, dependencies=[Depends(get_current_user), Depends(rate_limit)])
 async def upload_files(
     files: Annotated[list[UploadFile], File(description="One or more CSV files")],
     session_id: Annotated[str | None, Query(description="Existing session ID to add files to")] = None,
