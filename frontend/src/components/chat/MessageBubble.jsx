@@ -4,6 +4,8 @@ import { gsap } from '../../animations/gsap-registry';
 import Badge from '../common/Badge';
 import { AGENT_ICONS } from '../../utils/constants';
 
+import ChartRenderer from '../charts/ChartRenderer';
+
 function CodeBlockItem({ block }) {
   const [copied, setCopied] = useState(false);
 
@@ -91,10 +93,14 @@ export default function MessageBubble({
           <CodeBlockItem key={`code-${i}`} block={block} />
         ))}
 
-        {/* Charts placeholder */}
+        {/* Inline Charts (ChatGPT / Gemini style) */}
         {charts.length > 0 && (
-          <div className="message__chart-placeholder">
-            <span>📊</span> Chart generated — see visualization panel
+          <div className="message__inline-charts">
+            {charts.map((chartSpec, i) => (
+              <div key={`inline-chart-${i}`} className="message__inline-chart-item">
+                <ChartRenderer spec={chartSpec} />
+              </div>
+            ))}
           </div>
         )}
 

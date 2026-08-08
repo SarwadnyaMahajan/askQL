@@ -148,14 +148,7 @@ export default function Workspace() {
           {/* Dashboard - appears after upload */}
           {hasData && <AutoDashboard fileSummaries={fileSummaries} />}
 
-          {/* Chart - appears when chat produces one */}
-          {latestChart && (
-            <div className="workspace__chart">
-              <ChartRenderer spec={latestChart} />
-            </div>
-          )}
-
-          {/* Chat section */}
+          {/* Chat section (ChatGPT / Gemini style full-height stream) */}
           <div className="workspace__chat">
             <ChatPanel
               history={chatHistory}

@@ -77,41 +77,49 @@ export default function ChatPanel({ history = [], events = [], isStreaming, erro
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-panel__input-bar" onSubmit={handleSubmit}>
-        <input
-          ref={inputRef}
-          type="text"
-          className="chat-panel__input"
-          placeholder={disabled ? 'Upload a CSV first...' : 'Ask a question about your data...'}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={disabled || isStreaming}
-          id="chat-input"
-        />
+      <div className="chat-panel__footer">
+        <form className="chat-panel__input-capsule" onSubmit={handleSubmit}>
+          {/* Toggle Button for Chart Generation (token saver) */}
+          <button
+            type="button"
+            className={`btn-chart-toggle ${generateChart ? 'btn-chart-toggle--active' : ''}`}
+            onClick={() => setGenerateChart(!generateChart)}
+            title={generateChart ? 'Chart generation enabled' : 'Chart generation disabled (saves tokens)'}
+            disabled={disabled || isStreaming}
+          >
+            <span>📊</span>
+            <span>{generateChart ? 'Chart: ON' : 'Chart: OFF'}</span>
+          </button>
 
-        {/* Toggle Button for Chart Generation (token saver) */}
-        <button
-          type="button"
-          className={`btn-chart-toggle ${generateChart ? 'btn-chart-toggle--active' : ''}`}
-          onClick={() => setGenerateChart(!generateChart)}
-          title={generateChart ? 'Chart generation enabled (uses extra tokens)' : 'Chart generation disabled (saves tokens)'}
-          disabled={disabled || isStreaming}
-        >
-          <span>📊</span>
-          <span>{generateChart ? 'Chart: ON' : 'Chart: OFF'}</span>
-        </button>
+          <input
+            ref={inputRef}
+            type="text"
+            className="chat-panel__input"
+            placeholder={disabled ? 'Upload a CSV dataset to start chatting...' : 'Ask anything about your data...'}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled || isStreaming}
+            id="chat-input"
+          />
 
-        <Button
-          variant="primary"
-          size="md"
-          disabled={disabled || isStreaming || !input.trim()}
-          loading={isStreaming}
-          onClick={handleSubmit}
-        >
-          {isStreaming ? '...' : 'Send'}
-        </Button>
-      </form>
+          <button
+            type="submit"
+            className="chat-panel__btn-send"
+            disabled={disabled || isStreaming || !input.trim()}
+            title="Send Message"
+          >
+            {isStreaming ? (
+              <span className="chat-send-spinner" />
+            ) : (
+              <span className="chat-send-icon">↑</span>
+            )}
+          </button>
+        </form>
+        <div className="chat-panel__footer-disclaimer">
+          AI Data Analyst can make mistakes. Verify important financial or analytical data.
+        </div>
+      </div>
     </div>
   );
 }

@@ -1731,7 +1731,8 @@ code {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 360px;
+  min-height: 520px;
+  width: 100%;
 }
 
 .chat-panel {
@@ -1743,31 +1744,49 @@ code {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  position: relative;
 }
 
+/* ChatGPT / Gemini Centered Conversation Stream */
 .chat-panel__messages {
   flex: 1;
-  padding: 20px;
+  padding: 32px 24px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.message { display: flex; flex-direction: column; }
-.message--user { align-items: flex-end; }
-.message--assistant { align-items: flex-start; }
+.message {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.message--user {
+  align-items: flex-end;
+}
+
+.message--assistant {
+  align-items: flex-start;
+}
 
 .message__bubble {
-  max-width: 85%;
-  padding: 14px 18px;
-  border-radius: var(--radius-lg);
+  max-width: 90%;
+  padding: 16px 22px;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .message__bubble--user {
   background: var(--color-accent-gradient);
   color: white;
   border-bottom-right-radius: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
 }
 
 .message__bubble--assistant {
@@ -1775,22 +1794,32 @@ code {
   border: 1px solid var(--color-border);
   color: var(--color-text);
   border-bottom-left-radius: 4px;
+  width: 100%;
+}
+
+.message__inline-charts {
+  margin: 16px 0;
+  width: 100%;
+}
+
+.message__inline-chart-item {
+  width: 100%;
 }
 
 .message__trace {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .message__step {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 3px 10px;
   background: var(--color-accent-light);
   color: var(--color-accent);
   border-radius: var(--radius-full);
@@ -1801,44 +1830,106 @@ code {
   color: #A78BFA;
   border-radius: var(--radius-md);
   overflow: hidden;
-  margin: 10px 0;
-}
-
-.message__code-header {
-  padding: 6px 12px;
-  background: rgba(255,255,255,0.06);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  margin: 12px 0;
+  border: 1px solid rgba(124, 92, 252, 0.2);
 }
 
 .message__code-body {
-  padding: 12px;
+  padding: 14px 16px;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   overflow-x: auto;
+  line-height: 1.6;
 }
 
-.chat-panel__input-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+/* ChatGPT / Gemini Floating Bottom Input Capsule */
+.chat-panel__footer {
+  padding: 16px 24px 20px 24px;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.chat-panel__input-capsule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 880px;
+  width: 100%;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 28px;
+  padding: 8px 12px 8px 16px;
+  box-shadow: 0 4px 20px rgba(124, 92, 252, 0.08);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.chat-panel__input-capsule:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 24px rgba(124, 92, 252, 0.18);
 }
 
 .chat-panel__input {
   flex: 1;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  padding: 6px 4px;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
   outline: none;
 }
 
-.chat-panel__input:focus {
-  border-color: var(--color-accent);
+.chat-panel__btn-send {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.chat-panel__btn-send:hover:not(:disabled) {
+  transform: scale(1.05);
+  background: #6D44FC;
+  box-shadow: 0 4px 14px rgba(124, 92, 252, 0.35);
+}
+
+.chat-panel__btn-send:disabled {
+  background: var(--color-border);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.chat-send-icon {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.chat-send-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.chat-panel__footer-disclaimer {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  text-align: center;
 }
 
 /* Floating Agent Trace Timeline Cards */
