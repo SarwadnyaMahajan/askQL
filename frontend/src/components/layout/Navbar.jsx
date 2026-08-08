@@ -25,9 +25,9 @@ export default function Navbar({ agentStepsCount = 0, isTraceOpen = false, onTog
         onClick={() => navigate('/')}
         title="Go to Home"
       >
-        <span className="navbar__logo">◆</span>
-        <span className="navbar__title">AI Data Analyst</span>
+        <img src="/logo.png" alt="askQL" className="navbar__logo-img" />
       </button>
+
 
       <div className="navbar__middle">
         {activeFileName ? (

@@ -118,8 +118,9 @@ export default function ChatPanel({ history = [], events = [], isStreaming, erro
           </button>
         </form>
         <div className="chat-panel__footer-disclaimer">
-          AI Data Analyst can make mistakes. Verify important financial or analytical data.
+          askQL can make mistakes. Verify important financial or analytical data.
         </div>
+
       </div>
     </div>
   );

@@ -137,10 +137,9 @@ export default function Login() {
 
         {/* Brand Header */}
         <div className="auth-card__brand" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div className="auth-card__logo-icon">◆</div>
-
-          <span className="auth-card__brand-title">AI Data Analyst</span>
+          <img src="/logo.png" alt="askQL" className="auth-card__logo-img" />
         </div>
+
 
         {/* Title & Subtitle */}
         <div className="auth-card__header">

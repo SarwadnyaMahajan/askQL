@@ -60,9 +60,9 @@ export default function Landing() {
       <nav className="landing-nav">
         <div className="landing-nav__inner">
           <div className="landing-nav__brand" onClick={() => navigate('/')}>
-            <span className="landing-nav__logo">◆</span>
-            <span className="landing-nav__wordmark">AI Data Analyst</span>
+            <img src="/logo.png" alt="askQL" className="landing-nav__logo-img" />
           </div>
+
 
           <div className="landing-nav__links">
             <a href="#features" className="landing-nav__link">Features</a>
@@ -506,9 +506,9 @@ export default function Landing() {
         <div className="landing-footer__inner">
           <div className="landing-footer__brand">
             <div className="landing-footer__logo">
-              <span>◆</span>
-              <span>AI Data Analyst</span>
+              <img src="/logo.png" alt="askQL" className="landing-footer__logo-img" />
             </div>
+
             <p className="landing-footer__tagline">
               Autonomous multi-agent data analytics engine for instant CSV insights.
             </p>
@@ -533,7 +533,8 @@ export default function Landing() {
         </div>
 
         <div className="landing-footer__bottom">
-          <span>© 2026 AI Data Analyst. All rights reserved.</span>
+          <span>© 2026 askQL. All rights reserved.</span>
+
         </div>
       </footer>
     </div>
