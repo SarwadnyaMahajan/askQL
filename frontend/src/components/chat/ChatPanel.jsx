@@ -5,23 +5,13 @@ import MessageBubble from './MessageBubble';
 import Button from '../common/Button';
 import { SSE_EVENTS } from '../../utils/constants';
 
-export default function ChatPanel({ events, isStreaming, error, onSend, disabled }) {
+export default function ChatPanel({ history = [], events = [], isStreaming, error, onSend, disabled }) {
   const [input, setInput] = useState('');
+  const [generateChart, setGenerateChart] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Derive messages from SSE events
-  const messages = [];
-  let currentAssistant = null;
-
-  // Group events into messages
-  const userMessages = [];
-  const assistantBlocks = [];
-
-  // We track sent messages via parent, so rebuild from events
-  // events flow: agent_step*, code?, chart?, anomaly*, forecast?, token, done
-
-  // Build assistant message from events
+  // Build active assistant streaming message from current events
   const agentSteps = events.filter((e) => e.event === SSE_EVENTS.AGENT_STEP);
   const codeBlocks = events.filter((e) => e.event === SSE_EVENTS.CODE);
   const charts = events.filter((e) => e.event === SSE_EVENTS.CHART);
@@ -30,16 +20,16 @@ export default function ChatPanel({ events, isStreaming, error, onSend, disabled
   const tokens = events.filter((e) => e.event === SSE_EVENTS.TOKEN);
   const narration = tokens.map((t) => t.data.content).join('');
 
-  // Scroll to bottom on new events
+  // Scroll to bottom on new events or history update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [events.length, narration]);
+  }, [history.length, events.length, narration]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = input.trim();
     if (!trimmed || disabled || isStreaming) return;
-    onSend(trimmed);
+    onSend(trimmed, generateChart);
     setInput('');
   };
 
@@ -52,8 +42,22 @@ export default function ChatPanel({ events, isStreaming, error, onSend, disabled
   return (
     <div className="chat-panel">
       <div className="chat-panel__messages">
-        {/* Show assistant response if we have events */}
-        {events.length > 0 && (
+        {/* Render all preserved historical messages */}
+        {history.map((msg, idx) => (
+          <MessageBubble
+            key={idx}
+            role={msg.role}
+            content={msg.content}
+            agentSteps={msg.agentSteps || []}
+            codeBlocks={msg.codeBlocks || []}
+            charts={msg.charts || []}
+            anomalies={msg.anomalies || []}
+            forecasts={msg.forecasts || []}
+          />
+        ))}
+
+        {/* Show active assistant response stream only while streaming */}
+        {isStreaming && events.length > 0 && (
           <MessageBubble
             role="assistant"
             content={narration}
@@ -85,6 +89,19 @@ export default function ChatPanel({ events, isStreaming, error, onSend, disabled
           disabled={disabled || isStreaming}
           id="chat-input"
         />
+
+        {/* Toggle Button for Chart Generation (token saver) */}
+        <button
+          type="button"
+          className={`btn-chart-toggle ${generateChart ? 'btn-chart-toggle--active' : ''}`}
+          onClick={() => setGenerateChart(!generateChart)}
+          title={generateChart ? 'Chart generation enabled (uses extra tokens)' : 'Chart generation disabled (saves tokens)'}
+          disabled={disabled || isStreaming}
+        >
+          <span>📊</span>
+          <span>{generateChart ? 'Chart: ON' : 'Chart: OFF'}</span>
+        </button>
+
         <Button
           variant="primary"
           size="md"

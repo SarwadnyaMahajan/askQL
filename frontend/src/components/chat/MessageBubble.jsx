@@ -1,5 +1,5 @@
-/** MessageBubble — user/assistant message display with embedded content blocks. */
 import { useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { gsap } from '../../animations/gsap-registry';
 import Badge from '../common/Badge';
 import { AGENT_ICONS } from '../../utils/constants';
@@ -97,10 +97,10 @@ export default function MessageBubble({
           </div>
         )}
 
-        {/* Narration text */}
+        {/* Narration text rendered as Markdown */}
         {content && (
-          <div className="message__content">
-            {content}
+          <div className="message__content markdown-body">
+            <ReactMarkdown>{content}</ReactMarkdown>
             {isStreaming && <span className="message__cursor">▊</span>}
           </div>
         )}

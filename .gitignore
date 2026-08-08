@@ -31,3 +31,7 @@ data/uploads/
 # Build artifacts
 frontend/dist/
 *.whl
+
+# UI Analysis Docs
+ui_structural_breakdown.md
+diagnostic_report.md

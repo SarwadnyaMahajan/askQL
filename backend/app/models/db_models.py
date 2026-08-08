@@ -14,6 +14,8 @@ AsyncSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
+from sqlalchemy import Column, String, DateTime, Integer, Text, ForeignKey
+
 Base = declarative_base()
 
 
@@ -23,6 +25,37 @@ class User(Base):
     id = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class SessionModel(Base):
+    __tablename__ = "sessions"
+
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class UploadedFile(Base):
+    __tablename__ = "uploaded_files"
+
+    id = Column(String, primary_key=True, index=True)
+    session_id = Column(String, ForeignKey("sessions.id"), nullable=False, index=True)
+    filename = Column(String, nullable=False)
+    row_count = Column(Integer, nullable=True)
+    column_count = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(String, primary_key=True, index=True)
+    session_id = Column(String, ForeignKey("sessions.id"), nullable=False, index=True)
+    role = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    sql_query = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

@@ -49,20 +49,23 @@ class ConversationMemory:
             return list(history)
 
     def get_context_summary(self, session_id: str) -> str:
-        """Get a formatted context summary of recent conversation for the LLM."""
-        history = self.get_history(session_id, last_n=6)
+        """Get a formatted context summary of recent conversation for the LLM.
+
+        Truncated to last 2 turns (4 messages) to minimize prompt token bloat.
+        """
+        history = self.get_history(session_id, last_n=4)
         if not history:
             return ""
 
         lines = ["Previous conversation context:"]
         for turn in history:
             role = turn["role"].capitalize()
-            content = turn["content"][:200]
+            content = turn["content"][:150]
             lines.append(f"{role}: {content}")
             # Include SQL if it was in metadata
             sql = turn.get("metadata", {}).get("sql")
             if sql:
-                lines.append(f"  (SQL used: {sql[:100]})")
+                lines.append(f"  (SQL: {sql[:80]})")
 
         return "\n".join(lines)
 

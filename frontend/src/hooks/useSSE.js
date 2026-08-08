@@ -26,7 +26,7 @@ export function useSSE() {
     setError(null);
   }, []);
 
-  const send = useCallback(async (sessionId, message) => {
+  const send = useCallback(async (sessionId, message, generateChart = false) => {
     // Abort previous stream if any
     if (abortRef.current) abortRef.current.abort();
 
@@ -45,7 +45,7 @@ export function useSSE() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ session_id: sessionId, message }),
+        body: JSON.stringify({ session_id: sessionId, message, generate_chart: generateChart }),
         signal: controller.signal,
       });
 

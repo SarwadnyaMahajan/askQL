@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
+import { API_BASE } from '../utils/constants';
 
 const AuthContext = createContext(null);
 
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async (authToken) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/me', {
+      const response = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (response.ok) {
@@ -41,14 +42,19 @@ export const AuthProvider = ({ children }) => {
     formData.append('username', email);
     formData.append('password', password);
 
-    const response = await fetch('http://localhost:8000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString(),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+      });
+    } catch (err) {
+      throw new Error('Unable to connect to backend server. Please verify backend is running on http://localhost:8000.');
+    }
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: 'Login failed' }));
       throw new Error(error.detail || 'Login failed');
     }
 
@@ -57,14 +63,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password) => {
-    const response = await fetch('http://localhost:8000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch (err) {
+      throw new Error('Unable to connect to backend server. Please verify backend is running on http://localhost:8000.');
+    }
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: 'Registration failed' }));
       throw new Error(error.detail || 'Registration failed');
     }
 
@@ -78,7 +89,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

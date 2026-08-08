@@ -95,6 +95,7 @@ def narrate(
             max_output_tokens=settings.llm_max_tokens,
             temperature=0.3,
             json_mode=False,
+            model=settings.llm_lite_model,
         )
         return text or "I analyzed the data but couldn't generate a narrative."
 

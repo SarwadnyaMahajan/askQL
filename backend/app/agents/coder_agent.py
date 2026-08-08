@@ -39,21 +39,15 @@ def generate_code(
 ) -> dict:
     """Generate SQL code to answer a user query.
 
-    Args:
-        query: The user's question.
-        schema_context: Formatted schema text.
-        client: Gemini client instance.
-        error_context: If this is a retry, the error from the previous attempt.
-
-    Returns:
-        dict with keys: sql, explanation, pandas_equivalent (optional).
+    Structured for Gemini 2.5 Flash implicit caching: static system instruction and
+    schema context prefix are byte-identical across turns in the session.
     """
     import json
 
-    prompt = f"""Schema context:
-{schema_context}
+    # Assemble static prefix (System Instruction + Schema Context) for Gemini implicit caching
+    combined_system_instruction = f"{CODER_SYSTEM_PROMPT}\n\nSchema Context:\n{schema_context}"
 
-User question: {query}"""
+    prompt = f"User question: {query}"
 
     if error_context:
         prompt += f"""
@@ -69,7 +63,7 @@ Please fix the SQL query to avoid this error. Pay close attention to table names
         text = generate_llm(
             client=client,
             contents=prompt,
-            system_instruction=CODER_SYSTEM_PROMPT,
+            system_instruction=combined_system_instruction,
             max_output_tokens=1024,
             temperature=0.1,
             json_mode=True,

@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 
 try:
     from weasyprint import HTML, CSS
-except ImportError:
+except Exception:
     HTML = None
 
 from app.agents.memory import memory

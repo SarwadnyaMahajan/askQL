@@ -27,6 +27,7 @@ from app.agents.anomaly_agent import detect_anomalies, enrich_with_detective_not
 from app.agents.forecast_agent import detect_time_column, generate_forecast
 from app.agents.narrator_agent import narrate
 from app.agents.memory import memory
+from app.services.llm_service import generate_llm
 
 
 # ─── Pipeline State ──────────────────────────────────────────────
@@ -79,7 +80,7 @@ def _add_step(state: dict, agent: str, action: str, detail: str, duration_ms: in
     })
 
 
-async def run_pipeline(session_id: str, query: str) -> dict:
+async def run_pipeline(session_id: str, query: str, generate_chart: bool = False) -> dict:
     """Run the full multi-agent pipeline.
 
     This is the main entry point — called from the chat router.
@@ -109,17 +110,13 @@ async def run_pipeline(session_id: str, query: str) -> dict:
     # Handle general intent (no data needed)
     if intent["intent"] == "general":
         t0 = time.time()
-        from google.genai import types
-        response = client.models.generate_content(
-            model=settings.llm_model,
+        state["narration"] = generate_llm(
+            client=client,
             contents=query,
-            config=types.GenerateContentConfig(
-                system_instruction="You are a helpful data analyst assistant. Answer the user's general question.",
-                max_output_tokens=1024,
-                temperature=0.5,
-            ),
-        )
-        state["narration"] = response.text or "How can I help you with your data?"
+            system_instruction="You are a helpful data analyst assistant. Answer the user's general question.",
+            max_output_tokens=1024,
+            temperature=0.5,
+        ) or "How can I help you with your data?"
         _add_step(state, "Narrator", "General response",
                   f"{len(state['narration'])} chars",
                   int((time.time() - t0) * 1000))
@@ -212,8 +209,8 @@ async def run_pipeline(session_id: str, query: str) -> dict:
     # ── Conditional: Chart / Anomaly / Forecast ──────────────────
     intent_type = intent["intent"]
 
-    # Chart generation (on chart intent OR question with results)
-    if intent_type in ("chart", "question") and state.get("rows"):
+    # Chart generation: ONLY if explicitly requested via generate_chart=True OR intent is "chart"
+    if (generate_chart or intent_type == "chart") and state.get("rows"):
         t0 = time.time()
         chart = generate_chart_spec(query, state["rows"], state.get("columns", []), client)
         state["chart_spec"] = chart

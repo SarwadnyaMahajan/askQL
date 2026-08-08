@@ -37,13 +37,17 @@ export default function StatCard({ label, value, suffix = '', icon, variant = 'd
   }, [value, index]);
 
   return (
-    <div ref={ref} className={`stat-card stat-card--${variant}`}>
-      {icon && <span className="stat-card__icon">{icon}</span>}
-      <span ref={valueRef} className="stat-card__value">
-        {typeof value === 'number' ? '0' : value}
-      </span>
-      {suffix && <span className="stat-card__suffix">{suffix}</span>}
-      <span className="stat-card__label">{label}</span>
+    <div ref={ref} className="stat-card">
+      <div className="stat-card__header">
+        {icon && <div className="stat-card__icon-badge">{icon}</div>}
+        <span className="stat-card__label">{label}</span>
+      </div>
+      <div className="stat-card__body">
+        <span ref={valueRef} className="stat-card__value">
+          {typeof value === 'number' ? '0' : value}
+        </span>
+        {suffix && <span className="stat-card__suffix">{suffix}</span>}
+      </div>
     </div>
   );
 }

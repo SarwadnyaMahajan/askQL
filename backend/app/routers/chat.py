@@ -37,7 +37,7 @@ async def _stream_chat(request: ChatRequest):
 
     # Run the full pipeline
     try:
-        state = await run_pipeline(session_id, message)
+        state = await run_pipeline(session_id, message, generate_chart=request.generate_chart)
     except Exception as e:
         yield {
             "event": "error",

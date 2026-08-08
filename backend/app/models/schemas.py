@@ -48,6 +48,7 @@ class ChatRequest(BaseModel):
     """Body for POST /api/chat."""
     session_id: str
     message: str = Field(..., min_length=1, max_length=2000)
+    generate_chart: bool = False
 
 
 class AgentStep(BaseModel):

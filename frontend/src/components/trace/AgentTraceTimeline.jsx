@@ -4,7 +4,7 @@ import { gsap } from '../../animations/gsap-registry';
 import Badge from '../common/Badge';
 import { AGENT_ICONS } from '../../utils/constants';
 
-export default function AgentTraceTimeline({ steps = [] }) {
+export default function AgentTraceTimeline({ steps = [], onClose }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -16,11 +16,56 @@ export default function AgentTraceTimeline({ steps = [] }) {
     );
   }, [steps.length]);
 
+  const handleScrollToTop = () => {
+    if (!ref.current) return;
+    const parent = ref.current.closest('.workspace__right-rail') || ref.current.parentElement || ref.current;
+    parent.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleScrollToBottom = () => {
+    if (!ref.current) return;
+    const parent = ref.current.closest('.workspace__right-rail') || ref.current.parentElement || ref.current;
+    parent.scrollTo({ top: parent.scrollHeight, behavior: 'smooth' });
+  };
+
   if (steps.length === 0) return null;
 
   return (
     <div ref={ref} className="trace-timeline">
-      <h4 className="trace-timeline__title">Agent Trace</h4>
+      <div className="trace-timeline__header">
+        <div className="trace-timeline__title-group">
+          <h4 className="trace-timeline__title">Agent Trace</h4>
+          <span className="trace-timeline__badge">{steps.length} steps</span>
+        </div>
+        <div className="trace-timeline__actions">
+          <button
+            type="button"
+            className="btn-trace-scroll"
+            onClick={handleScrollToTop}
+            title="Scroll back to top of agent trace"
+          >
+            ⬆ Top
+          </button>
+          <button
+            type="button"
+            className="btn-trace-scroll"
+            onClick={handleScrollToBottom}
+            title="Scroll to latest agent step"
+          >
+            ⬇ Latest
+          </button>
+          {onClose && (
+            <button
+              type="button"
+              className="btn-trace-close"
+              onClick={onClose}
+              title="Slide out / Hide Agent Trace (Slide right)"
+            >
+              ➡️
+            </button>
+          )}
+        </div>
+      </div>
       <div className="trace-timeline__list">
         {steps.map((step, i) => (
           <div key={i} className="trace-step">

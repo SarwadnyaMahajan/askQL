@@ -32,7 +32,7 @@ export async function uploadFiles(files, sessionId = null) {
  * @param {string} message
  * @returns {Response} Raw fetch Response with readable body stream
  */
-export async function sendChatMessage(sessionId, message) {
+export async function sendChatMessage(sessionId, message, generateChart = false) {
   const token = localStorage.getItem('access_token');
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -40,7 +40,7 @@ export async function sendChatMessage(sessionId, message) {
   const res = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ session_id: sessionId, message }),
+    body: JSON.stringify({ session_id: sessionId, message, generate_chart: generateChart }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
