@@ -2,8 +2,8 @@ FROM python:3.11
 
 WORKDIR /app
 
-# Upgrade pip to ensure latest wheel support
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# Install uv for fast, low-memory package installation
+RUN pip install --no-cache-dir uv
 
 # Limit concurrent build jobs for C/C++/Rust extensions to save memory
 ENV MAX_CONCURRENCY=1
@@ -12,7 +12,8 @@ ENV GRPC_PYTHON_BUILD_EXT_COMPILER_JOBS=1
 ENV CARGO_BUILD_JOBS=1
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+# Use uv to install requirements (drastically reduces memory usage)
+RUN uv pip install --system --no-cache -r requirements.txt
 
 COPY . .
 
