@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Central config. Every value can be overridden by an env var of the same name."""
 
     # ─── LLM ────────────────────────────────────────────────────
-    gemini_api_key: str = Field(..., description="Google Gemini API key")
+    gemini_api_key: str = Field("", description="Google Gemini API key")
     llm_model: str = Field("gemini-2.5-flash", description="Gemini primary model ID (Coder)")
     llm_lite_model: str = Field("gemini-2.5-flash-lite", description="Gemini lite model ID (Narrator & auxiliary tasks)")
     llm_max_tokens: int = Field(4096, description="Max tokens per LLM response")
