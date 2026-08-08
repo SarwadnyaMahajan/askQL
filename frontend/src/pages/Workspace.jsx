@@ -1,20 +1,61 @@
-/** Workspace page — split layout: sidebar + main (chat + dashboard). */
+/** Workspace page — ChatGPT / Gemini style full-page conversational layout. */
 import { useState, useCallback, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Sidebar from '../components/layout/Sidebar';
-import Dropzone from '../components/upload/Dropzone';
 import ChatPanel from '../components/chat/ChatPanel';
 import AutoDashboard from '../components/dashboard/AutoDashboard';
-import ChartRenderer from '../components/charts/ChartRenderer';
 import AgentTraceTimeline from '../components/trace/AgentTraceTimeline';
 import Toast from '../components/common/Toast';
 import useSSE from '../hooks/useSSE';
 import { uploadFiles } from '../utils/api';
 import { SSE_EVENTS } from '../utils/constants';
 
+function buildDataOverviewMessage(files) {
+  if (!files || files.length === 0) return '';
+  const file = files[0];
+  const filename = file.filename || file.name || 'Dataset';
+  const rowCount = file.row_count || file.rows || 'N/A';
+  const colCount = file.column_count || (file.columns ? file.columns.length : 'N/A');
+
+  let markdown = `### 📊 Dataset Overview: **${filename}**\n\n`;
+  markdown += `Dataset loaded into DuckDB session! Here is the statistical structure:\n\n`;
+  markdown += `- **Total Rows**: \`${typeof rowCount === 'number' ? rowCount.toLocaleString() : rowCount}\`\n`;
+  markdown += `- **Total Columns**: \`${colCount}\`\n\n`;
+
+  if (file.columns && Array.isArray(file.columns)) {
+    markdown += `#### 📋 Column Schema:\n`;
+    file.columns.slice(0, 10).forEach((col) => {
+      const colName = typeof col === 'string' ? col : col.name || col.column;
+      const dtype = typeof col === 'object' ? col.dtype || col.type || 'text' : 'text';
+      const samples = col.sample_values && col.sample_values.length > 0
+        ? ` — samples: \`${col.sample_values.slice(0, 3).join(', ')}\``
+        : '';
+      markdown += `- \`${colName}\` (*${dtype.toUpperCase()}*)${samples}\n`;
+    });
+    if (file.columns.length > 10) {
+      markdown += `\n*... and ${file.columns.length - 10} more columns.*\n`;
+    }
+  }
+
+  markdown += `\n---\n**💡 Suggested Questions to Ask:**\n`;
+  markdown += `- *"What is total summary metric for this dataset?"*\n`;
+  markdown += `- *"Show top 5 items by numerical value"* (toggle 📊 **Chart: ON** for visual graph)\n`;
+  markdown += `- *"Find anomalies or outliers in key columns"*\n`;
+
+  return markdown;
+}
+
 export default function Workspace() {
   const [sessionId, setSessionId] = useState(null);
   const [fileSummaries, setFileSummaries] = useState([]);
+  const [allSessions, setAllSessions] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('all_user_sessions');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState(null);
   const [chatHistory, setChatHistory] = useState([]); // Array of { role, content, events }
@@ -22,8 +63,6 @@ export default function Workspace() {
 
   const [isTraceOpen, setIsTraceOpen] = useState(false);
 
-  // Current chart spec from latest response
-  const latestChart = events.find((e) => e.event === SSE_EVENTS.CHART)?.data || null;
   // Current agent steps from latest response
   const latestSteps = events
     .filter((e) => e.event === SSE_EVENTS.AGENT_STEP)
@@ -32,11 +71,45 @@ export default function Workspace() {
   const handleFilesSelected = useCallback(async (files) => {
     setIsUploading(true);
     try {
-      const result = await uploadFiles(files, sessionId);
+      // Pass null so each new CSV upload gets its own isolated session_id
+      const result = await uploadFiles(files, null);
+      
+      // Explicitly attach session_id and normalized filename to each file summary
+      const filesWithSession = result.files.map((f) => ({
+        ...f,
+        session_id: result.session_id,
+        filename: f.file_name || f.filename || 'Dataset.csv',
+      }));
+
       setSessionId(result.session_id);
-      setFileSummaries((prev) => [...prev, ...result.files]);
+      setFileSummaries(filesWithSession);
+
+      // Prepend to allSessions list for left sidebar (newest stacked on top!)
+      setAllSessions((prev) => {
+        const filteredPrev = prev.filter((item) => item.session_id !== result.session_id);
+        const updated = [...filesWithSession, ...filteredPrev];
+        try {
+          sessionStorage.setItem('all_user_sessions', JSON.stringify(updated));
+        } catch (e) {
+          // ignore
+        }
+        return updated;
+      });
+
+      // Generate Data Overview Welcome Message with inline StatCard tiles
+      const overviewText = buildDataOverviewMessage(filesWithSession);
+      const initialHistory = [{ role: 'assistant', content: overviewText, fileSummaries: filesWithSession }];
+      setChatHistory(initialHistory);
+
+      try {
+        sessionStorage.setItem(`chat_history_${result.session_id}`, JSON.stringify(initialHistory));
+        sessionStorage.setItem(`files_${result.session_id}`, JSON.stringify(filesWithSession));
+      } catch (e) {
+        // ignore
+      }
+
       setToast({
-        message: `${result.files.length} file(s) uploaded successfully!`,
+        message: `${filesWithSession.length} dataset(s) loaded into active workspace!`,
         type: 'success',
       });
     } catch (err) {
@@ -44,7 +117,33 @@ export default function Workspace() {
     } finally {
       setIsUploading(false);
     }
-  }, [sessionId]);
+  }, []);
+
+  // Handle switching dataset session from left sidebar
+  const handleSelectSession = useCallback((file) => {
+    if (!file || !file.session_id) return;
+    const targetSessionId = file.session_id;
+
+    // Reset SSE stream state
+    reset();
+
+    setSessionId(targetSessionId);
+    setFileSummaries([file]);
+
+    try {
+      const storedHistory = sessionStorage.getItem(`chat_history_${targetSessionId}`);
+      if (storedHistory) {
+        setChatHistory(JSON.parse(storedHistory));
+      } else {
+        const overviewText = buildDataOverviewMessage([file]);
+        const initialHistory = [{ role: 'assistant', content: overviewText, fileSummaries: [file] }];
+        setChatHistory(initialHistory);
+        sessionStorage.setItem(`chat_history_${targetSessionId}`, JSON.stringify(initialHistory));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [reset]);
 
   // Load stored chat history when session changes
   useEffect(() => {
@@ -53,6 +152,9 @@ export default function Workspace() {
         const stored = sessionStorage.getItem(`chat_history_${sessionId}`);
         if (stored) {
           setChatHistory(JSON.parse(stored));
+        } else if (fileSummaries.length > 0) {
+          const overviewText = buildDataOverviewMessage(fileSummaries);
+          setChatHistory([{ role: 'assistant', content: overviewText, fileSummaries: fileSummaries }]);
         }
       } catch (e) {
         // ignore
@@ -137,18 +239,16 @@ export default function Workspace() {
         fileSummaries={fileSummaries}
       />
       <div className="workspace__body">
-        <Sidebar fileSummaries={fileSummaries} />
+        <Sidebar
+          fileSummaries={allSessions}
+          activeSessionId={sessionId}
+          onSelectSession={handleSelectSession}
+          onFilesSelected={handleFilesSelected}
+          isUploading={isUploading}
+        />
 
         <main className="workspace__main">
-          {/* Upload zone - always visible at top if no data yet, compact if data exists */}
-          <div className={`workspace__upload ${hasData ? 'workspace__upload--compact' : ''}`}>
-            <Dropzone onFilesSelected={handleFilesSelected} disabled={isUploading} />
-          </div>
-
-          {/* Dashboard - appears after upload */}
-          {hasData && <AutoDashboard fileSummaries={fileSummaries} />}
-
-          {/* Chat section (ChatGPT / Gemini style full-height stream) */}
+          {/* Full-Page ChatGPT / Gemini Chat Section */}
           <div className="workspace__chat">
             <ChatPanel
               history={chatHistory}

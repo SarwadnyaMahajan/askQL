@@ -5,6 +5,7 @@ import Badge from '../common/Badge';
 import { AGENT_ICONS } from '../../utils/constants';
 
 import ChartRenderer from '../charts/ChartRenderer';
+import AutoDashboard from '../dashboard/AutoDashboard';
 
 function CodeBlockItem({ block }) {
   const [copied, setCopied] = useState(false);
@@ -44,6 +45,7 @@ export default function MessageBubble({
   charts = [],
   anomalies = [],
   forecasts = [],
+  fileSummaries = [],
   isStreaming = false,
 }) {
   const ref = useRef(null);
@@ -70,6 +72,13 @@ export default function MessageBubble({
   return (
     <div ref={ref} className="message message--assistant">
       <div className="message__bubble message__bubble--assistant">
+        {/* Data Overview Tile Grid (StatCards + Schema Cards) embedded INLINE in message bubble */}
+        {fileSummaries && fileSummaries.length > 0 && (
+          <div className="message__inline-dashboard">
+            <AutoDashboard fileSummaries={fileSummaries} />
+          </div>
+        )}
+
         {/* Agent Steps Trace */}
         {agentSteps.length > 0 && (
           <div className="message__trace">

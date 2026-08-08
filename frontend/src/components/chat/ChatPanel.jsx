@@ -53,6 +53,7 @@ export default function ChatPanel({ history = [], events = [], isStreaming, erro
             charts={msg.charts || []}
             anomalies={msg.anomalies || []}
             forecasts={msg.forecasts || []}
+            fileSummaries={msg.fileSummaries || []}
           />
         ))}
 
