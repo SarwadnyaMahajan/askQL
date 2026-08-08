@@ -1,6 +1,9 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 WORKDIR /app
+
+# Upgrade pip to ensure latest wheel support
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
