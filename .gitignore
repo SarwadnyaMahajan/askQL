@@ -1,37 +1,45 @@
-# Dependencies
+# Dependencies & Virtual Envs
 node_modules/
+frontend/node_modules/
 backend/venv/
+venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
 dist/
 build/
+frontend/dist/
 
-# Environment
+# Environment Variables & Secrets
 .env
 .env.local
 .env.*.local
+*.env
+backend/.env
 
-# IDE
+# IDE & Editor Files
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Docker
-*.log
-
-# Data (keep sample, ignore user uploads)
-data/uploads/
-
-# Build artifacts
-frontend/dist/
-*.whl
-
-# UI Analysis Docs
+# Reference Docs & Source Media
+redesign.md
 ui_structural_breakdown.md
 diagnostic_report.md
+logo/
+
+# Runtime User Uploads (Ignore temporary runtime files, keep sample data)
+data/uploads/
+backend/data/uploads/
+
+# Internal Test Scripts & Agent Locks
+backend/test_multi_tenant_auth.py
+.agents/
+skills-lock.json
+
+# Logs & Docker
+*.log
+.dockerignore
