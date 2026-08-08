@@ -1,7 +1,7 @@
 """Application configuration — loaded from environment variables via Pydantic Settings."""
 
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, field_validator
 
 
 class Settings(BaseSettings):
@@ -22,6 +22,15 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://analyst:changeme@localhost:5432/ai_analyst",
         description="Async Postgres connection string",
     )
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def fix_database_url(cls, v: str) -> str:
+        if v and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v and v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # ─── Redis ───────────────────────────────────────────────────
     redis_url: str = Field("redis://localhost:6379/0")
