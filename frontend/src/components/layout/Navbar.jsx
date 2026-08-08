@@ -1,16 +1,33 @@
-/** Navbar — minimal top navigation bar with trace drawer toggle. */
+/** Navbar — minimal top navigation bar with trace drawer toggle and user profile. */
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar({ agentStepsCount = 0, isTraceOpen = false, onToggleTrace, fileSummaries = [] }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const activeFileName = fileSummaries.length > 0
-    ? fileSummaries.map((f) => f.filename || f.name).join(', ')
+    ? fileSummaries.map((f) => f.filename || f.file_name || f.name).join(', ')
     : null;
+
+  const displayName = user?.name || user?.email || 'User';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="navbar">
-      <div className="navbar__brand">
+      <button
+        type="button"
+        className="navbar__brand navbar__brand--clickable"
+        onClick={() => navigate('/')}
+        title="Go to Home"
+      >
         <span className="navbar__logo">◆</span>
         <span className="navbar__title">AI Data Analyst</span>
-      </div>
+      </button>
 
       <div className="navbar__middle">
         {activeFileName ? (
@@ -39,8 +56,24 @@ export default function Navbar({ agentStepsCount = 0, isTraceOpen = false, onTog
             <span>{isTraceOpen ? '➡️' : '⬅️'}</span>
           </button>
         )}
-        <span className="navbar__version">v0.1.0</span>
+
+        {/* Logged in User Name Badge & Avatar (Top Right Corner) */}
+        {user && (
+          <div className="navbar__user-badge" title={`Logged in as ${displayName}`}>
+            <span className="navbar__user-avatar">👤</span>
+            <span className="navbar__user-name">{displayName}</span>
+            <button
+              type="button"
+              className="btn-navbar-logout"
+              onClick={handleLogout}
+              title="Sign Out"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );
 }
+

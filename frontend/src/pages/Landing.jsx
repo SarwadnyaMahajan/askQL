@@ -107,8 +107,9 @@ export default function Landing() {
               size="lg"
               onClick={() => navigate('/login')}
             >
-              ⚡ Quick Demo Login
+              Sign In / Register
             </Button>
+
           </div>
         </div>
 
@@ -193,7 +194,8 @@ export default function Landing() {
         <div className="stat-strip__container">
           <div className="stat-strip__item">
             <span className="stat-strip__num">1,000+</span>
-            <span className="stat-strip__label">Rows Analyzed in Demo</span>
+            <span className="stat-strip__label">Rows Analyzed per Query</span>
+
           </div>
           <div className="stat-strip__divider" />
           <div className="stat-strip__item">
@@ -495,7 +497,8 @@ export default function Landing() {
             <div className="footer-col">
               <h4>Resources</h4>
               <a href="#workspace" onClick={(e) => { e.preventDefault(); navigate('/workspace'); }}>Workspace</a>
-              <a href="#demo" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>Quick Demo</a>
+              <a href="#login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>Sign In</a>
+
               <a href="https://github.com" target="_blank" rel="noreferrer">Documentation</a>
             </div>
           </div>

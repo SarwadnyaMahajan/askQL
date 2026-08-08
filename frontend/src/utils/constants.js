@@ -20,7 +20,8 @@ export const AGENT_ICONS = {
   'Coder': '💻',
   'Validator': '✅',
   'Executor': '⚡',
-  'Chart Agent': '📊',
+  'Chart Agent': '▤',
+
   'Anomaly Detective': '🔍',
   'Forecast Agent': '📈',
   'Narrator': '📝',

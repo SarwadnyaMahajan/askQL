@@ -27,10 +27,11 @@ from app.agents.anomaly_agent import detect_anomalies, enrich_with_detective_not
 from app.agents.forecast_agent import detect_time_column, generate_forecast
 from app.agents.narrator_agent import narrate
 from app.agents.memory import memory
-from app.services.llm_service import generate_llm
+from app.services.llm_service import generate_llm, traceable
 
 
 # ─── Pipeline State ──────────────────────────────────────────────
+
 
 class PipelineState(TypedDict, total=False):
     """State that flows through the agent pipeline."""
@@ -80,6 +81,7 @@ def _add_step(state: dict, agent: str, action: str, detail: str, duration_ms: in
     })
 
 
+@traceable(name="AgentPipeline", run_type="chain")
 async def run_pipeline(session_id: str, query: str, generate_chart: bool = False) -> dict:
     """Run the full multi-agent pipeline.
 

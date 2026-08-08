@@ -10,6 +10,7 @@ import ast
 from typing import Any
 
 import sqlglot
+from app.services.llm_service import traceable
 
 
 # ─── SQL Validation ──────────────────────────────────────────────
@@ -20,7 +21,9 @@ _ALLOWED_SQL_TYPES = {
 }
 
 
+@traceable(name="ValidatorAgent", run_type="chain")
 def validate_sql(sql: str) -> dict[str, Any]:
+
     """Validate a SQL query — only SELECT statements allowed.
 
     Returns:

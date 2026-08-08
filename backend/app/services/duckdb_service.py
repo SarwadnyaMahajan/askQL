@@ -46,9 +46,34 @@ class DuckDBService:
         with self._lock:
             if session_id not in self._sessions:
                 self._sessions[session_id] = _SessionInstance()
-            return self._sessions[session_id]
+            instance = self._sessions[session_id]
+
+        # Auto-restore tables from disk if connection has no tables loaded
+        if not instance.tables:
+            self.restore_session_from_disk(session_id)
+
+        return instance
+
+    def restore_session_from_disk(self, session_id: str) -> None:
+        """Restore DuckDB tables from saved CSV files in data/uploads/<session_id>/."""
+        import os
+        upload_dir = os.path.join("data", "uploads", session_id)
+        if not os.path.isdir(upload_dir):
+            return
+
+        for fname in os.listdir(upload_dir):
+            if fname.lower().endswith(".csv"):
+                file_path = os.path.join(upload_dir, fname)
+                try:
+                    df = pd.read_csv(file_path)
+                    table_name = fname.rsplit(".", 1)[0]
+                    table_name = "".join(c if c.isalnum() or c == "_" else "_" for c in table_name)
+                    self.load_dataframe(session_id, table_name, df)
+                except Exception:
+                    continue
 
     def remove(self, session_id: str) -> None:
+
         """Explicitly remove a session and close its connection."""
         with self._lock:
             instance = self._sessions.pop(session_id, None)

@@ -46,3 +46,5 @@ pip-audit>=2.9.0
 
 # Observability
 structlog>=25.4.0
+langsmith>=0.1.0
+

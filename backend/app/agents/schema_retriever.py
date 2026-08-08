@@ -7,9 +7,12 @@ from __future__ import annotations
 
 from app.services.qdrant_service import qdrant_service
 from app.services.duckdb_service import duckdb_service
+from app.services.llm_service import traceable
 
 
+@traceable(name="SchemaRetriever", run_type="chain")
 def retrieve_schema(session_id: str, query: str) -> dict:
+
     """Retrieve schema context and table metadata for a user query.
 
     Returns a dict with:

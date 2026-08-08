@@ -38,10 +38,12 @@ Respond with ONLY a JSON object:
 """
 
 
-from app.services.llm_service import generate_llm
+from app.services.llm_service import generate_llm, traceable
 
 
+@traceable(name="ChartAgent", run_type="chain")
 def generate_chart_spec(
+
     query: str,
     rows: list[dict],
     columns: list[str],

@@ -1162,6 +1162,26 @@ code {
   box-shadow: var(--shadow-xl);
 }
 
+.auth-card__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 12px;
+  transition: color 0.15s ease;
+}
+
+.auth-card__back-btn:hover {
+  color: var(--color-accent);
+}
+
+
 .auth-card__brand {
   display: flex;
   align-items: center;
@@ -1175,12 +1195,30 @@ code {
   color: var(--color-accent);
 }
 
+.navbar__brand--clickable {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+
+.navbar__brand--clickable:hover {
+  background: var(--color-surface-2, rgba(255,255,255,0.06));
+}
+
 .auth-card__brand-title {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.125rem;
   color: var(--color-text);
 }
+
 
 .auth-card__header {
   text-align: center;
@@ -2317,3 +2355,47 @@ code {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Navbar Top Right User Display Badge */
+.navbar__user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  margin-left: 12px;
+}
+
+.navbar__user-avatar {
+  font-size: 0.875rem;
+}
+
+.navbar__user-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-navbar-logout {
+  background: transparent;
+  border: none;
+  color: var(--color-error, #EF4444);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+  margin-left: 4px;
+}
+
+.btn-navbar-logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+

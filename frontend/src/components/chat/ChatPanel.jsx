@@ -88,8 +88,8 @@ export default function ChatPanel({ history = [], events = [], isStreaming, erro
             title={generateChart ? 'Chart generation enabled' : 'Chart generation disabled (saves tokens)'}
             disabled={disabled || isStreaming}
           >
-            <span>📊</span>
             <span>{generateChart ? 'Chart: ON' : 'Chart: OFF'}</span>
+
           </button>
 
           <input

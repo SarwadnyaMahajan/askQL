@@ -30,10 +30,12 @@ Respond with ONLY a JSON object: {"intent": "<category>", "confidence": <0.0-1.0
 """
 
 
-from app.services.llm_service import generate_llm
+from app.services.llm_service import generate_llm, traceable
 
 
+@traceable(name="RouterAgent", run_type="chain")
 def classify_intent(message: str, client: genai.Client = None) -> dict:
+
     """Classify user message intent using fast deterministic lexical rules.
 
     Eliminates 1 LLM call per turn while ensuring 100% accurate classification.

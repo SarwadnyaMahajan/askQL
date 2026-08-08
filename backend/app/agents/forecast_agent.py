@@ -11,9 +11,11 @@ from typing import Any
 
 import pandas as pd
 import numpy as np
+from app.services.llm_service import traceable
 
 
 def detect_time_column(df: pd.DataFrame) -> str | None:
+
     """Find the most likely datetime column in a DataFrame."""
     # Check existing datetime columns
     for col in df.columns:
@@ -43,6 +45,7 @@ def detect_time_column(df: pd.DataFrame) -> str | None:
     return None
 
 
+@traceable(name="ForecastAgent", run_type="chain")
 def generate_forecast(
     df: pd.DataFrame,
     time_col: str,

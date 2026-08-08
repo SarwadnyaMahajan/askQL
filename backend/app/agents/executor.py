@@ -11,6 +11,7 @@ from typing import Any
 
 from app.config import settings
 from app.services.duckdb_service import duckdb_service
+from app.services.llm_service import traceable
 
 
 class ExecutionTimeout(Exception):
@@ -18,7 +19,9 @@ class ExecutionTimeout(Exception):
     pass
 
 
+@traceable(name="ExecutorAgent", run_type="chain")
 def execute_sql(session_id: str, sql: str) -> dict[str, Any]:
+
     """Execute a validated SQL query against the session's DuckDB.
 
     Returns:

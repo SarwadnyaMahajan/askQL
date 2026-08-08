@@ -81,8 +81,8 @@ export default function ChartRenderer({ spec }) {
     <div ref={containerRef} className="chart-renderer-card">
       <div className="chart-renderer-card__header">
         <div className="chart-renderer-card__title">
-          <span className="chart-renderer-card__icon">📊</span>
           <span className="chart-renderer-card__text">{chartTitle}</span>
+
         </div>
         <div className="chart-renderer-card__actions">
           <button

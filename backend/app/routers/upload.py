@@ -3,19 +3,25 @@
 from __future__ import annotations
 
 import io
+import os
+import json
 import uuid
 from typing import Annotated
 
 import pandas as pd
 from fastapi import APIRouter, File, UploadFile, HTTPException, Query, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.config import settings
 from app.models.schemas import UploadResponse, DataQualitySummary, ColumnProfile
+from app.models.db_models import User, SessionModel, UploadedFile, get_db
 from app.security.csv_sanitizer import sanitize_dataframe
 from app.security.auth import get_current_user
 from app.security.rate_limiter import rate_limit
 from app.services.duckdb_service import duckdb_service
 from app.services.qdrant_service import qdrant_service
+
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
@@ -92,21 +98,33 @@ def _profile_dataframe(df: pd.DataFrame, file_name: str) -> DataQualitySummary:
     )
 
 
-@router.post("/upload", response_model=UploadResponse, dependencies=[Depends(get_current_user), Depends(rate_limit)])
+@router.post("/upload", response_model=UploadResponse, dependencies=[Depends(rate_limit)])
 async def upload_files(
     files: Annotated[list[UploadFile], File(description="One or more CSV files")],
     session_id: Annotated[str | None, Query(description="Existing session ID to add files to")] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """Upload one or more CSV files.
 
-    Validates, sanitizes, profiles, and loads into a per-session DuckDB instance.
-    Returns a data quality summary for each file.
+    Validates, sanitizes, profiles, loads into DuckDB, and persists session and files to PostgreSQL.
     """
     if not files:
         raise HTTPException(status_code=400, detail="No files provided.")
 
     # Generate or reuse session ID
     sid = session_id or str(uuid.uuid4())
+
+    # Ensure SessionModel exists in DB linked to current_user
+    sess_res = await db.execute(select(SessionModel).where(SessionModel.id == sid))
+    session_obj = sess_res.scalars().first()
+    if not session_obj:
+        session_obj = SessionModel(id=sid, user_id=current_user.id)
+        db.add(session_obj)
+        await db.commit()
+
+    upload_dir = os.path.join("data", "uploads", sid)
+    os.makedirs(upload_dir, exist_ok=True)
 
     summaries: list[DataQualitySummary] = []
 
@@ -146,18 +164,36 @@ async def upload_files(
         # ── Sanitize ─────────────────────────────────────────────
         sanitize_dataframe(df)
 
+        # Save CSV copy to disk for server restarts & persistent DuckDB re-hydration
+        filename = file.filename or "data.csv"
+        disk_path = os.path.join(upload_dir, filename)
+        df.to_csv(disk_path, index=False)
+
         # ── Profile ──────────────────────────────────────────────
-        summary = _profile_dataframe(df, file.filename or "unnamed.csv")
+        summary = _profile_dataframe(df, filename)
         summaries.append(summary)
 
         # ── Load into DuckDB ─────────────────────────────────────
-        # Table name: filename without extension, sanitized
-        table_name = (file.filename or "data").rsplit(".", 1)[0]
+        table_name = filename.rsplit(".", 1)[0]
         table_name = "".join(c if c.isalnum() or c == "_" else "_" for c in table_name)
         duckdb_service.load_dataframe(sid, table_name, df)
+
+        # Save UploadedFile record in DB
+        file_record = UploadedFile(
+            id=str(uuid.uuid4()),
+            session_id=sid,
+            filename=filename,
+            row_count=summary.row_count,
+            column_count=summary.column_count,
+            file_summary=json.dumps(summary.model_dump()),
+        )
+        db.add(file_record)
+
+    await db.commit()
 
     # ── Store schema in Qdrant service ───────────────────────────
     schema_info = duckdb_service.get_schema_info(sid)
     qdrant_service.store_schema(sid, schema_info)
 
     return UploadResponse(session_id=sid, files=summaries)
+

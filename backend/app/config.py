@@ -55,6 +55,12 @@ class Settings(BaseSettings):
     # ─── Session TTL ─────────────────────────────────────────────
     session_ttl_hours: int = Field(24, description="Auto-delete sessions after N hours")
 
+    # ─── LangSmith Observability ────────────────────────────────
+    langchain_tracing_v2: str = Field("true", description="Enable LangSmith tracing")
+    langchain_endpoint: str = Field("https://api.smith.langchain.com", description="LangSmith endpoint URL")
+    langchain_api_key: str = Field("", description="LangSmith API key")
+    langchain_project: str = Field("ai-data-analyst", description="LangSmith project name")
+
     @property
     def cors_origins(self) -> list[str]:
         return [o.strip() for o in self.backend_cors_origins.split(",")]
@@ -63,8 +69,22 @@ class Settings(BaseSettings):
     def max_file_size_bytes(self) -> int:
         return self.max_file_size_mb * 1024 * 1024
 
+    def sync_langsmith_env(self) -> None:
+        """Sync LangSmith settings to os.environ for automatic SDK detection."""
+        import os
+        if self.langchain_tracing_v2:
+            os.environ["LANGCHAIN_TRACING_V2"] = self.langchain_tracing_v2
+        if self.langchain_endpoint:
+            os.environ["LANGCHAIN_ENDPOINT"] = self.langchain_endpoint
+        if self.langchain_api_key:
+            os.environ["LANGCHAIN_API_KEY"] = self.langchain_api_key
+        if self.langchain_project:
+            os.environ["LANGCHAIN_PROJECT"] = self.langchain_project
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 # Singleton — import this everywhere
 settings = Settings()
+settings.sync_langsmith_env()
+

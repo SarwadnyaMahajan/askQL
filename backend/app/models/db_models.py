@@ -24,8 +24,10 @@ class User(Base):
 
     id = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
 
 
 class SessionModel(Base):
@@ -45,6 +47,7 @@ class UploadedFile(Base):
     filename = Column(String, nullable=False)
     row_count = Column(Integer, nullable=True)
     column_count = Column(Integer, nullable=True)
+    file_summary = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -56,7 +59,9 @@ class ChatMessage(Base):
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     sql_query = Column(Text, nullable=True)
+    extra_data = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -66,6 +71,13 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db():
-    """Initialize database tables."""
+    """Initialize database tables and run lightweight migrations."""
+    from sqlalchemy import text
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Migrate existing tables if needed
+        await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR;"))
+        await conn.execute(text("ALTER TABLE uploaded_files ADD COLUMN IF NOT EXISTS file_summary TEXT;"))
+        await conn.execute(text("ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS extra_data TEXT;"))
+
+

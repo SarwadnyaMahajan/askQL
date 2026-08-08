@@ -9,7 +9,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import upload, chat, auth, export
+from app.routers import upload, chat, auth, export, sessions
+
 from app.services.duckdb_service import duckdb_service
 from app.models.db_models import init_db
 
@@ -22,6 +23,9 @@ async def lifespan(app: FastAPI):
     print(f"   CORS origins: {settings.cors_origins}")
     print(f"   Max file size: {settings.max_file_size_mb}MB")
     print(f"   Session TTL: {settings.session_ttl_hours}h")
+    ls_status = "Enabled" if settings.langchain_api_key else "Configured (Set LANGCHAIN_API_KEY to send traces)"
+    print(f"   LangSmith Tracing: {ls_status} [Project: {settings.langchain_project}]")
+
 
     # Initialize DB tables
     await init_db()
@@ -70,6 +74,8 @@ app.include_router(auth.router)
 app.include_router(upload.router)
 app.include_router(chat.router)
 app.include_router(export.router)
+app.include_router(sessions.router)
+
 
 
 @app.get("/health")

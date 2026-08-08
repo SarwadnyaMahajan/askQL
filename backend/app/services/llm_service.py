@@ -12,6 +12,14 @@ from app.config import settings
 
 logger = logging.getLogger("llm_service")
 
+try:
+    from langsmith import traceable
+except ImportError:
+    def traceable(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 _groq_client = None
 
 def _get_groq_client():
@@ -41,6 +49,7 @@ def _get_groq_client():
     return _groq_client
 
 
+@traceable(name="generate_llm", run_type="llm")
 def generate_llm(
     client: genai.Client,
     contents: str,

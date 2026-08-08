@@ -50,6 +50,60 @@ export async function sendChatMessage(sessionId, message, generateChart = false)
 }
 
 /**
+ * Fetch all sessions and dataset summaries for the logged-in user.
+ * @returns {Promise<Array>} List of session objects
+ */
+export async function fetchUserSessions() {
+  const token = localStorage.getItem('access_token');
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/sessions`, { headers });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to load sessions' }));
+    throw new Error(err.detail || 'Failed to load sessions');
+  }
+  return res.json();
+}
+
+/**
+ * Fetch chat history and files for a specific session.
+ * @param {string} sessionId
+ * @returns {Promise<object>} { session_id, files, history }
+ */
+export async function fetchSessionHistory(sessionId) {
+  const token = localStorage.getItem('access_token');
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/sessions/${encodeURIComponent(sessionId)}/history`, { headers });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to load session history' }));
+    throw new Error(err.detail || 'Failed to load session history');
+  }
+  return res.json();
+}
+
+/**
+ * Delete a session.
+ * @param {string} sessionId
+ */
+export async function deleteSession(sessionId) {
+  const token = localStorage.getItem('access_token');
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+    headers,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to delete session' }));
+    throw new Error(err.detail || 'Failed to delete session');
+  }
+}
+
+/**
  * Check backend health.
  * @returns {Promise<object>}
  */
@@ -57,3 +111,4 @@ export async function checkHealth() {
   const res = await fetch('/health');
   return res.json();
 }
+

@@ -25,11 +25,13 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    name: str | None = None
 
 
 class UserResponse(BaseModel):
     id: str
     email: str
+    name: str | None = None
     
     class Config:
         from_attributes = True
@@ -58,6 +60,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     new_user = User(
         id=user_id,
         email=user.email,
+        name=user.name,
         hashed_password=hashed_password
     )
     
@@ -66,6 +69,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(new_user)
     
     return new_user
+
 
 
 @router.post("/login", response_model=Token)

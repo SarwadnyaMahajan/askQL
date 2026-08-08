@@ -9,7 +9,8 @@ from google import genai
 from google.genai import types
 
 from app.config import settings
-from app.services.llm_service import generate_llm
+from app.services.llm_service import generate_llm, traceable
+
 
 CODER_SYSTEM_PROMPT = """You are an expert SQL coder for DuckDB. Given a user question and database schema, generate a SQL query to answer the question.
 
@@ -31,6 +32,7 @@ Respond with ONLY a JSON object:
 """
 
 
+@traceable(name="CoderAgent", run_type="chain")
 def generate_code(
     query: str,
     schema_context: str,

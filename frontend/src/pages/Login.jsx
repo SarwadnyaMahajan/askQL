@@ -7,6 +7,7 @@ import gsap from 'gsap';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +37,8 @@ export default function Login() {
       );
 
       if (formRef.current) {
-        const elements = formRef.current.querySelectorAll('.form-group, .auth-alert, .form-options, .btn-submit, .demo-section');
+        const elements = formRef.current.querySelectorAll('.form-group, .auth-alert, .form-options, .btn-submit');
+
         tl.fromTo(
           elements,
           { y: 15, opacity: 0 },
@@ -53,6 +55,11 @@ export default function Login() {
   const validateForm = () => {
     const newErrors = {};
     
+    // Name check for registration
+    if (!isLogin && !name.trim()) {
+      newErrors.name = 'Full name is required.';
+    }
+
     // Email check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -102,52 +109,36 @@ export default function Login() {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(email, password);
+        await register(email, password, name);
       }
       navigate('/workspace');
     } catch (err) {
-      // If registration fails because user exists, try auto-login or display clear message
       setServerError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Quick Demo Login Handler
-  const handleDemoLogin = async () => {
-    setServerError('');
-    setIsSubmitting(true);
-    const demoEmail = 'analyst@company.com';
-    const demoPass = 'password123';
-    
-    setEmail(demoEmail);
-    setPassword(demoPass);
-
-    try {
-      // Try login first
-      await login(demoEmail, demoPass);
-      navigate('/workspace');
-    } catch {
-      try {
-        // If demo user doesn't exist yet, auto register then login
-        await register(demoEmail, demoPass);
-        navigate('/workspace');
-      } catch (err) {
-        setServerError(err.message || 'Failed to authenticate demo user.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="auth-page">
       <div className="auth-page__bg-grid" />
 
       <div ref={cardRef} className="auth-card">
+        {/* Back to Home */}
+        <button
+          type="button"
+          className="auth-card__back-btn"
+          onClick={() => navigate('/')}
+          title="Back to Home"
+        >
+          ← Back to Home
+        </button>
+
         {/* Brand Header */}
-        <div className="auth-card__brand">
-          <div className="auth-card__logo-icon">📊</div>
+        <div className="auth-card__brand" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
+          <div className="auth-card__logo-icon">◆</div>
+
           <span className="auth-card__brand-title">AI Data Analyst</span>
         </div>
 
@@ -200,7 +191,33 @@ export default function Login() {
 
         {/* Form Body */}
         <form ref={formRef} onSubmit={handleSubmit} className="auth-form" noValidate>
+          {/* Name Input (Registration Only) */}
+          {!isLogin && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="name-input">
+                <span>Full Name</span>
+              </label>
+              <div className="form-input-wrapper">
+                <input
+                  id="name-input"
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+                  }}
+                  className={`form-input ${errors.name ? 'form-input--error' : ''}`}
+                  autoComplete="name"
+                  required
+                />
+              </div>
+              {errors.name && <span className="field-error">{errors.name}</span>}
+            </div>
+          )}
+
           {/* Email Input */}
+
           <div className="form-group">
             <label className="form-label" htmlFor="email-input">
               <span>Email Address</span>
@@ -313,21 +330,8 @@ export default function Login() {
             )}
           </Button>
         </form>
-
-        {/* Demo Login Divider & Button */}
-        <div className="demo-section">
-          <div className="demo-divider">Or quick test</div>
-          <button
-            type="button"
-            className="btn-demo"
-            onClick={handleDemoLogin}
-            disabled={isSubmitting}
-          >
-            <span>⚡</span>
-            <span>One-Click Demo Login</span>
-          </button>
-        </div>
       </div>
     </div>
   );
 }
+

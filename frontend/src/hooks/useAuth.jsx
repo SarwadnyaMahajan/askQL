@@ -62,13 +62,13 @@ export const AuthProvider = ({ children }) => {
     setToken(data.access_token);
   };
 
-  const register = async (email, password) => {
+  const register = async (email, password, name = '') => {
     let response;
     try {
       response = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name }),
       });
     } catch (err) {
       throw new Error('Unable to connect to backend server. Please verify backend is running on http://localhost:8000.');
@@ -82,6 +82,7 @@ export const AuthProvider = ({ children }) => {
     // Auto login after register
     await login(email, password);
   };
+
 
   const logout = () => {
     setToken(null);

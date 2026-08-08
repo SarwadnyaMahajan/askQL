@@ -16,7 +16,8 @@ from google import genai
 from google.genai import types
 
 from app.config import settings
-from app.services.llm_service import generate_llm
+from app.services.llm_service import generate_llm, traceable
+
 
 
 # ─── Statistical Detection ───────────────────────────────────────
@@ -73,6 +74,7 @@ def _detect_zscore(series: pd.Series, col_name: str, threshold: float = 3.0) -> 
     return flags
 
 
+@traceable(name="AnomalyAgent", run_type="chain")
 def detect_anomalies(df: pd.DataFrame, max_flags: int = 20) -> list[dict]:
     """Run statistical anomaly detection on all numeric columns.
 
