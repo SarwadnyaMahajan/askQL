@@ -25,13 +25,21 @@ backend/.env
 .DS_Store
 Thumbs.db
 
-# Reference Docs & Source Media
+# Internal Planning & Scratch Docs (Only README.md is published)
+implementation_plan.md
+checkpoint.md
+task.md
+walkthrough.md
+deployment_guide.md
+PRD_AI_Data_Analyst.md
 redesign.md
 ui_structural_breakdown.md
 diagnostic_report.md
 logo/
+scratch/
+brain/
 
-# Runtime User Uploads (Ignore temporary runtime files, keep sample data)
+# Runtime User Uploads (Keep sample data in data/, ignore runtime uploads)
 data/uploads/
 backend/data/uploads/
 
