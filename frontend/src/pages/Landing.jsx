@@ -6,6 +6,8 @@ import { useRef, useEffect } from 'react';
 import { gsap } from '../animations/gsap-registry';
 import Button from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
+import GradientBlurBg from '../components/ui/GradientBlurBg';
+
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -51,6 +53,9 @@ export default function Landing() {
 
   return (
     <div className="landing-page">
+      {/* ─── Ambient Gradient + Grid Background ────────────────────────────── */}
+      <GradientBlurBg variant="hero" />
+
       {/* ─── Top Navigation Bar ────────────────────────────────────────────── */}
       <nav className="landing-nav">
         <div className="landing-nav__inner">
@@ -62,7 +67,8 @@ export default function Landing() {
           <div className="landing-nav__links">
             <a href="#features" className="landing-nav__link">Features</a>
             <a href="#workflow" className="landing-nav__link">Workflow</a>
-            <a href="#pricing" className="landing-nav__link">Pricing</a>
+            <a href="#technology" className="landing-nav__link">Technology</a>
+
           </div>
 
           <div className="landing-nav__actions">
@@ -395,84 +401,105 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── Pricing Section ───────────────────────────────────────────────── */}
-      <section id="pricing" className="landing-section">
+      {/* ─── Tech Stack Showcase Section ─────────────────────────────────────── */}
+      <section id="technology" className="landing-section">
         <div className="landing-section__header">
-          <div className="landing-badge">Pricing</div>
+          <div className="landing-badge">Technology</div>
           <h2 className="landing-section__title">
-            Simple, transparent <span className="title-accent">pricing</span>
+            Built on <span className="title-accent">cutting-edge</span> infrastructure
           </h2>
-          <p className="landing-section__desc">Choose the plan that best fits your analytics workload.</p>
+          <p className="landing-section__desc">
+            Every layer of the stack is purpose-built for speed, accuracy, and intelligent data reasoning.
+          </p>
         </div>
 
-        <div className="pricing-grid">
-          {/* Free Plan */}
-          <div className="pricing-card">
-            <div className="pricing-card__name">Starter</div>
-            <div className="pricing-card__price">$0 <span>/ month</span></div>
-            <p className="pricing-card__desc">Ideal for individual exploration and quick data checks.</p>
-            <ul className="pricing-card__features">
-              <li>✓ 10 CSV Uploads per day</li>
-              <li>✓ Standard DuckDB engine</li>
-              <li>✓ 50 AI queries per day</li>
-              <li>✓ Basic chart visualizations</li>
-            </ul>
-            <Button
-              variant="secondary"
-              size="md"
-              className="w-full"
-              onClick={() => navigate('/workspace')}
-            >
-              Get Started Free
-            </Button>
+        <div className="tech-stack-grid">
+          {/* LangGraph */}
+          <div className="tech-card tech-card--accent">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--purple">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+            </div>
+            <div className="tech-card__label">LangGraph</div>
+            <div className="tech-card__name">Multi-Agent Orchestration</div>
+            <p className="tech-card__desc">
+              A directed stateful graph routes your query through specialised agents — Router → Coder → Validator → Executor → Chart → Narrator — each with a single responsibility.
+            </p>
+            <div className="tech-card__pill">StateGraph · Conditional Edges</div>
           </div>
 
-          {/* Pro Plan (Highlighted) */}
-          <div className="pricing-card pricing-card--featured">
-            <div className="pricing-card__popular">Most Popular</div>
-            <div className="pricing-card__name">Analyst Pro</div>
-            <div className="pricing-card__price">$29 <span>/ month</span></div>
-            <p className="pricing-card__desc">Full multi-agent capabilities for power data users.</p>
-            <ul className="pricing-card__features">
-              <li>✓ Unlimited CSV dataset uploads</li>
-              <li>✓ LangGraph multi-agent pipeline</li>
-              <li>✓ Anomaly Detective & Forecasting</li>
-              <li>✓ Full Agent Trace visibility</li>
-              <li>✓ High-priority Groq & Gemini fallback</li>
-            </ul>
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full"
-              onClick={() => navigate('/workspace')}
-            >
-              Start 14-Day Free Trial
-            </Button>
+          {/* DuckDB */}
+          <div className="tech-card tech-card--teal">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--teal">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+            </div>
+            <div className="tech-card__label">DuckDB</div>
+            <div className="tech-card__name">In-Process Analytical Engine</div>
+            <p className="tech-card__desc">
+              Your CSV lands directly into a blazing-fast columnar in-memory database. SQL queries run locally with no round-trips — sub-second even on million-row files.
+            </p>
+            <div className="tech-card__pill">Columnar · In-Memory · SQL</div>
           </div>
 
-          {/* Enterprise Plan */}
-          <div className="pricing-card">
-            <div className="pricing-card__name">Enterprise</div>
-            <div className="pricing-card__price">$99 <span>/ month</span></div>
-            <p className="pricing-card__desc">Dedicated infrastructure and team workspace isolation.</p>
-            <ul className="pricing-card__features">
-              <li>✓ Everything in Analyst Pro</li>
-              <li>✓ Dedicated Qdrant Vector namespace</li>
-              <li>✓ Custom Redis session caching</li>
-              <li>✓ Admin access & audit logs</li>
-              <li>✓ Priority 24/7 support</li>
-            </ul>
-            <Button
-              variant="secondary"
-              size="md"
-              className="w-full"
-              onClick={() => navigate('/workspace')}
-            >
-              Contact Sales
-            </Button>
+          {/* LLM Layer */}
+          <div className="tech-card tech-card--orange">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--orange">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <div className="tech-card__label">Groq · Gemini · OpenAI</div>
+            <div className="tech-card__name">LLM Intelligence Layer</div>
+            <p className="tech-card__desc">
+              Multi-model fallback ensures availability and cost efficiency. Groq's ultra-low latency handles real-time generation while Gemini handles complex reasoning tasks.
+            </p>
+            <div className="tech-card__pill">Groq LPU · Gemini Flash · GPT-4o</div>
+          </div>
+
+          {/* Qdrant */}
+          <div className="tech-card tech-card--blue">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--blue">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div className="tech-card__label">Qdrant</div>
+            <div className="tech-card__name">Vector Memory Store</div>
+            <p className="tech-card__desc">
+              Schema embeddings are stored in Qdrant so the Schema Retriever agent finds the most relevant column context via ANN search — not brute-force string matching.
+            </p>
+            <div className="tech-card__pill">ANN Search · Embeddings · RAG</div>
+          </div>
+
+          {/* LangSmith */}
+          <div className="tech-card tech-card--green">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--green">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div className="tech-card__label">LangSmith</div>
+            <div className="tech-card__name">Full Trace Observability</div>
+            <p className="tech-card__desc">
+              Every agent invocation is traced end-to-end via LangSmith. Latency, token counts, and intermediate reasoning steps are captured for debugging and optimization.
+            </p>
+            <div className="tech-card__pill">Tracing · Token Metrics · Debugging</div>
+          </div>
+
+          {/* FastAPI + PostgreSQL */}
+          <div className="tech-card tech-card--rose">
+            <div className="tech-card__glow" />
+            <div className="tech-card__icon-wrap tech-card__icon-wrap--rose">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div className="tech-card__label">FastAPI · PostgreSQL · Redis</div>
+            <div className="tech-card__name">Production Backend</div>
+            <p className="tech-card__desc">
+              Async FastAPI SSE streams results token-by-token. PostgreSQL persists multi-tenant account data and chat history. Redis caches session state for instant workspace restoration.
+            </p>
+            <div className="tech-card__pill">SSE Streaming · Multi-tenant · JWT Auth</div>
           </div>
         </div>
       </section>
+
 
       {/* ─── Footer ────────────────────────────────────────────────────────── */}
       <footer className="landing-footer">
@@ -492,7 +519,8 @@ export default function Landing() {
               <h4>Product</h4>
               <a href="#features">Features</a>
               <a href="#workflow">Workflow</a>
-              <a href="#pricing">Pricing</a>
+              <a href="#technology">Technology</a>
+
             </div>
             <div className="footer-col">
               <h4>Resources</h4>
