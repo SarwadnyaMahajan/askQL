@@ -35,8 +35,8 @@ python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
 # Anomaly Detection & Forecasting
-scikit-learn>=1.5.0
-statsmodels>=0.14.6
+# scikit-learn>=1.5.0 (unused)
+# statsmodels>=0.14.6 (optional for forecasting, causes 8GB+ memory spikes on Render)
 
 # PDF Export (Optional - commented out for fast low-memory cloud deployment)
 # weasyprint>=65.0
