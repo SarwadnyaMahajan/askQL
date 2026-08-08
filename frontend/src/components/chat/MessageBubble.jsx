@@ -1,8 +1,38 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { gsap } from '../../animations/gsap-registry';
 import Badge from '../common/Badge';
 import { AGENT_ICONS } from '../../utils/constants';
+
+function CodeBlockItem({ block }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (!block.code) return;
+    navigator.clipboard.writeText(block.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="message__code">
+      <div className="message__code-header">
+        <span>{block.language?.toUpperCase() || 'SQL'}</span>
+        <button
+          type="button"
+          className="message__code-copy-btn"
+          onClick={handleCopy}
+          title="Copy code to clipboard"
+        >
+          {copied ? '✓ Copied!' : '📋 Copy Code'}
+        </button>
+      </div>
+      <pre className="message__code-body">
+        <code>{block.code}</code>
+      </pre>
+    </div>
+  );
+}
 
 export default function MessageBubble({
   role,
@@ -58,14 +88,7 @@ export default function MessageBubble({
 
         {/* Code Blocks */}
         {codeBlocks.map((block, i) => (
-          <div key={`code-${i}`} className="message__code">
-            <div className="message__code-header">
-              <span>{block.language?.toUpperCase() || 'CODE'}</span>
-            </div>
-            <pre className="message__code-body">
-              <code>{block.code}</code>
-            </pre>
-          </div>
+          <CodeBlockItem key={`code-${i}`} block={block} />
         ))}
 
         {/* Charts placeholder */}

@@ -20,7 +20,7 @@ export default function Workspace() {
   const [chatHistory, setChatHistory] = useState([]); // Array of { role, content, events }
   const { send, events, isStreaming, error, reset } = useSSE();
 
-  const [isTraceOpen, setIsTraceOpen] = useState(true);
+  const [isTraceOpen, setIsTraceOpen] = useState(false);
 
   // Current chart spec from latest response
   const latestChart = events.find((e) => e.event === SSE_EVENTS.CHART)?.data || null;
@@ -28,13 +28,6 @@ export default function Workspace() {
   const latestSteps = events
     .filter((e) => e.event === SSE_EVENTS.AGENT_STEP)
     .map((e) => e.data);
-
-  // Automatically open trace sliding drawer when new steps arrive
-  useEffect(() => {
-    if (latestSteps.length > 0) {
-      setIsTraceOpen(true);
-    }
-  }, [latestSteps.length]);
 
   const handleFilesSelected = useCallback(async (files) => {
     setIsUploading(true);
@@ -141,6 +134,7 @@ export default function Workspace() {
         agentStepsCount={latestSteps.length}
         isTraceOpen={isTraceOpen}
         onToggleTrace={() => setIsTraceOpen(!isTraceOpen)}
+        fileSummaries={fileSummaries}
       />
       <div className="workspace__body">
         <Sidebar fileSummaries={fileSummaries} />
